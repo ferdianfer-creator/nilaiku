@@ -1574,9 +1574,7 @@
               <span id="btnTextGuru">MASUK</span>
               <div id="spinnerGuru" class="spinner"></div>
             </button>
-            <div class="quick-helper-wrap">
-              <span style="font-size: 0.8rem; color: var(--text-muted);">Default password guru: <code>guru123</code></span>
-            </div>
+            
           </form>
 
           <!-- PESAN ERROR -->
@@ -1725,6 +1723,14 @@
                 Keluar (Logout)
               </button>
             </div>
+          </div>
+
+          <!-- TAB PILIH MATA PELAJARAN (GURU) -->
+          <div class="section-title" style="margin-bottom: 8px;">
+            <span>Pilih Mata Pelajaran:</span>
+          </div>
+          <div class="subject-switcher-bar" id="adminSubjectTabs">
+            <!-- Tombol filter mapel digenerate JS -->
           </div>
 
           <!-- TAB PILIH KELAS AKTIF -->
@@ -5584,6 +5590,18 @@
       return list.find(s => s.name === selectedSubject) || list[0];
     }
 
+    
+    function updateAdminSubjectUI() {
+      const activeSub = getActiveSubjectObj();
+      if (!activeSub) return;
+      const teacherEl = document.getElementById('adminHeaderTeacher');
+      if (teacherEl) teacherEl.textContent = 'Pengampu: ' + activeSub.teacher;
+      const mapelLabel = document.getElementById('adminMapelLabel');
+      if (mapelLabel) mapelLabel.textContent = activeSub.name + ' • Multi-Kelas Aktif';
+      const kkmBadge = document.getElementById('adminKkmBadge');
+      if (kkmBadge) kkmBadge.innerHTML = '🎯 Standar KKM ' + activeSub.name + ': <strong>' + (activeSub.kkm || 75) + '</strong>';
+    }
+    
     function renderAdminSubjectTabs() {
       const container = document.getElementById('adminSubjectTabs');
       if (!container) return;
@@ -5599,6 +5617,7 @@
           selectedSubject = sub.name;
           appConfig.activeSubject = sub.name;
           appConfig.subjectName = sub.name;
+          updateAdminSubjectUI();
           appConfig.teacherName = sub.teacher;
           appConfig.kkm = sub.kkm || 75;
           saveConfig(appConfig);
@@ -5977,7 +5996,8 @@
       document.getElementById('loginView').style.display = 'none';
       document.getElementById('adminDashboardView').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'block';
-      tampilkanDataSiswa(student);
+      const initialSub = student.subject || selectedSubject || 'Informatika';
+      bukaNilaiSiswaPerMapel(student.nisn, initialSub);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -6099,6 +6119,8 @@
       document.getElementById('loginView').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'none';
       document.getElementById('adminDashboardView').style.display = 'block';
+      renderAdminSubjectTabs();
+      updateAdminSubjectUI();
       renderClassTabs();
       renderAdminTable();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6147,8 +6169,10 @@
       const kkm = Number(appConfig.kkm) || 75;
       const query = (document.getElementById('searchStudentInput')?.value || '').toLowerCase().trim();
 
-      // 1. Filter berdasarkan Kelas yang dipilih di tab
-      let listForView = studentsList;
+      // 1. Filter berdasarkan Mata Pelajaran yang dipilih
+      let listForView = studentsList.filter(s => (s.subject || 'Informatika') === selectedSubject);
+
+      // 2. Filter berdasarkan Kelas yang dipilih di tab
       if (selectedClassTab !== 'all') {
         listForView = listForView.filter(s => s.class === selectedClassTab);
       }
@@ -6316,8 +6340,10 @@
 
     // 8. MODAL EDIT NILAI SISWA
     function bukaModalEdit(nisn) {
-      const student = studentsList.find(s => s.nisn === nisn);
+      let student = studentsList.find(s => s.nisn === nisn && (s.subject || 'Informatika') === selectedSubject);
+      if (!student) student = studentsList.find(s => s.nisn === nisn);
       if (!student) return;
+      student.subject = student.subject || selectedSubject;
 
       document.getElementById('modalEditTitle').textContent = 'Edit Nilai: ' + student.name;
       document.getElementById('editNISN').value = student.nisn;
@@ -6350,8 +6376,10 @@
     function simpanNilaiDariModal(e) {
       e.preventDefault();
       const nisn = document.getElementById('editNISN').value;
-      const student = studentsList.find(s => s.nisn === nisn);
+      let student = studentsList.find(s => s.nisn === nisn && (s.subject || 'Informatika') === selectedSubject);
+      if (!student) student = studentsList.find(s => s.nisn === nisn);
       if (!student) return;
+      student.subject = student.subject || selectedSubject;
 
       student.class = document.getElementById('editKelas').value.trim();
       student.attendance = Number(document.getElementById('editKehadiran').value) || 0;

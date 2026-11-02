@@ -1,7 +1,5 @@
-const CACHE_NAME = 'nilaiku-cache-v1';
+const CACHE_NAME = 'nilaiku-cache-v3';
 const ASSETS_TO_CACHE = [
-  './index.html',
-  './sistem_pelacakan_nilai.html',
   './logo_alazhar.png',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap'
@@ -24,6 +22,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('Menghapus cache lama:', key);
             return caches.delete(key);
           }
         })
@@ -36,25 +35,38 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Supabase real-time queries go straight to network
+  // Supabase real-time queries langsung ke jaringan
   if (event.request.url.includes('supabase.co')) {
     return;
   }
 
+  // Navigasi HTML: Network First agar update langsung terlihat seketika
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request) || caches.match('./index.html');
+        })
+    );
+    return;
+  }
+
+  // Asset statis (icon, font): Cache First
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
+      return cachedResponse || fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
+        return networkResponse;
       });
     })
   );
