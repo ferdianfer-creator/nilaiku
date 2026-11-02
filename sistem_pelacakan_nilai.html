@@ -1,0 +1,4527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NILAIKU - Sistem Pelacakan Nilai Siswa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f294a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NILAIKU">
+  <link rel="apple-touch-icon" href="public/logo_alazhar.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Tema Modern Insightlancer: Deep Navy & Clean White */
+      --navy-primary: #0f294a;
+      --navy-dark: #0a1c33;
+      --navy-card: #133258;
+      --navy-hover: #183e6d;
+      --blue-accent: #2563eb;
+      --blue-light: #e0ecf8;
+      --blue-subtle: #f0f6fc;
+      
+      --bg-page: #f3f6fa;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --border-dark: #cbd5e1;
+      
+      --text-main: #0f294a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      --success: #16a34a;
+      --success-light: #dcfce7;
+      --warning-orange: #ea580c;
+      --warning-orange-bg: #fff7ed;
+      --warning-orange-border: #fed7aa;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --danger-border: #fca5a5;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-pill: 9999px;
+      
+      --shadow-sm: 0 2px 6px rgba(15, 41, 74, 0.04);
+      --shadow-md: 0 8px 24px rgba(15, 41, 74, 0.07);
+      --shadow-lg: 0 16px 36px rgba(15, 41, 74, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* DEKORASI BACKGROUND GEOMETRIS MODERN */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-circle-1 {
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 480px;
+      height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 41, 74, 0.09) 0%, rgba(15, 41, 74, 0.02) 65%, transparent 75%);
+    }
+
+    .bg-circle-2 {
+      position: absolute;
+      bottom: -150px;
+      left: -100px;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.07) 0%, rgba(37, 99, 235, 0.01) 60%, transparent 75%);
+    }
+
+    .bg-accent-dot-1 {
+      position: absolute;
+      top: 140px;
+      left: 8%;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--navy-primary);
+      opacity: 0.85;
+      box-shadow: 0 6px 14px rgba(15, 41, 74, 0.25);
+    }
+
+    .bg-accent-dot-2 {
+      position: absolute;
+      bottom: 120px;
+      right: 9%;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--navy-primary);
+      opacity: 0.85;
+      box-shadow: 0 6px 14px rgba(15, 41, 74, 0.25);
+    }
+
+    /* CONTAINER UTAMA */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px 16px 60px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+    }
+
+    /* CARD PUTIH MODERN */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================================
+       1. HALAMAN LOGIN (THEME NAVY & WHITE MODERN + NILAIKU)
+       ======================================================== */
+    #loginView {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px 16px;
+    }
+
+    .login-logo-box {
+      margin-bottom: 18px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .login-school-logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #ffffff;
+      padding: 4px;
+      border: 3.5px solid var(--navy-primary);
+      box-shadow: 0 10px 24px rgba(15, 41, 74, 0.16);
+      transition: transform 0.2s ease;
+    }
+
+    .login-school-logo:hover {
+      transform: scale(1.03);
+    }
+
+    /* BRAND IDENTITAS NILAIKU */
+    .brand-identity-box {
+      margin-bottom: 8px;
+    }
+
+    .brand-app-name {
+      display: inline-block;
+      padding: 6px 22px;
+      background: linear-gradient(135deg, var(--navy-primary) 0%, var(--blue-accent) 100%);
+      color: #ffffff;
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 14px rgba(15, 41, 74, 0.22);
+      text-transform: uppercase;
+    }
+
+    .brand-app-tagline {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--blue-accent);
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .login-title-school {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--navy-primary);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      line-height: 1.35;
+      max-width: 580px;
+    }
+
+    .login-title-subject {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--blue-accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .login-teacher-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    .login-card-inner {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* SEGMENTED SWITCHER: MURID | GURU */
+    .role-pill-switch {
+      display: flex;
+      width: 100%;
+      background: #ffffff;
+      padding: 5px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border-color);
+      box-shadow: 0 4px 16px rgba(15, 41, 74, 0.08);
+      margin-bottom: 16px;
+    }
+
+    .role-pill-btn {
+      flex: 1;
+      padding: 12px 18px;
+      border: none;
+      background: transparent;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      letter-spacing: 0.6px;
+      transition: all 0.25s ease;
+    }
+
+    .role-pill-btn.active {
+      background: var(--navy-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(15, 41, 74, 0.3);
+    }
+
+    /* INPUT FIELD */
+    .login-form-box {
+      width: 100%;
+    }
+
+    .pill-input {
+      width: 100%;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      border: 1.5px solid var(--border-dark);
+      background: #ffffff;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 12px rgba(15, 41, 74, 0.04);
+      outline: none;
+      color: var(--navy-primary);
+      transition: all 0.2s ease;
+      margin-bottom: 14px;
+    }
+
+    .pill-input::placeholder {
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    .pill-input:focus {
+      border-color: var(--navy-primary);
+      box-shadow: 0 0 0 4px rgba(15, 41, 74, 0.12);
+    }
+
+    /* TOMBOL CEK NILAI / MASUK */
+    .pill-btn-submit {
+      width: 100%;
+      padding: 14px 22px;
+      background: linear-gradient(135deg, var(--navy-primary) 0%, #173b68 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(15, 41, 74, 0.25);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pill-btn-submit:hover {
+      background: linear-gradient(135deg, #173b68 0%, #1e4b85 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(15, 41, 74, 0.32);
+    }
+
+    .pill-btn-submit:active {
+      transform: translateY(1px);
+    }
+
+    .login-error-alert {
+      display: none;
+      width: 100%;
+      padding: 12px 16px;
+      background: #fef2f2;
+      border: 1.5px solid #fecaca;
+      color: #dc2626;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-top: 14px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quick-helper-wrap {
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .btn-helper-link {
+      background: none;
+      border: none;
+      color: var(--blue-accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-helper-link:hover {
+      color: var(--navy-primary);
+    }
+
+    /* ========================================================
+       2. HEADER DASHBOARD (SISWA & GURU)
+       ======================================================== */
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-logo-mini {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 10px rgba(15, 41, 74, 0.12);
+      border: 2px solid var(--navy-primary);
+      background: #ffffff;
+    }
+
+    .header-brand-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      background: var(--navy-primary);
+      color: #ffffff;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .badge-subject {
+      display: inline-block;
+      padding: 6px 16px;
+      background: var(--blue-subtle);
+      color: var(--navy-primary);
+      border: 1px solid var(--blue-light);
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .app-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--navy-primary);
+      line-height: 1.3;
+    }
+
+    .app-subtitle {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .kkm-badge-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f8fafc;
+      color: var(--navy-primary);
+      border: 1px solid var(--border-color);
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    /* ========================================================
+       3. DASHBOARD SISWA
+       ======================================================== */
+    #dashboardView, #adminDashboardView {
+      display: none;
+    }
+
+    .student-profile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 18px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .profile-info h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--navy-primary);
+    }
+
+    .profile-info p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .nisn-chip {
+      background: #f1f5f9;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--navy-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    /* KOTAK PERINGATAN JIKA ADA TUGAS KOSONG */
+    .warning-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 5px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
+
+    .warning-title {
+      font-weight: 800;
+      color: #b45309;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .warning-list {
+      list-style-type: disc;
+      padding-left: 20px;
+      color: #92400e;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    /* GRID NILAI SISWA */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .score-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 14px;
+      text-align: center;
+    }
+
+    .score-card.highlight {
+      grid-column: span 2;
+      background: linear-gradient(135deg, var(--navy-primary) 0%, #1e3a8a 100%);
+      color: #ffffff;
+      border: none;
+      padding: 24px 20px;
+      box-shadow: 0 12px 28px rgba(15, 41, 74, 0.22);
+      transition: all 0.3s ease;
+    }
+
+    .score-card.highlight.under-kkm {
+      background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+      box-shadow: 0 12px 28px rgba(234, 88, 12, 0.25);
+    }
+
+    .score-card.highlight .score-label {
+      color: #93c5fd;
+    }
+
+    .score-card.highlight .score-sub {
+      color: #dbeafe;
+    }
+
+    .score-card.highlight.under-kkm .score-label {
+      color: #fed7aa;
+    }
+
+    .score-card.highlight.under-kkm .score-sub {
+      color: #ffedd5;
+    }
+
+    .score-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .score-value {
+      font-size: 1.95rem;
+      font-weight: 900;
+      margin: 6px 0;
+      line-height: 1.2;
+      color: var(--navy-primary);
+    }
+
+    .score-card.highlight .score-value {
+      color: #ffffff;
+    }
+
+    .score-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--navy-primary);
+    }
+
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .task-item.task-empty {
+      border-color: var(--danger-border);
+      background: var(--danger-light);
+    }
+
+    .task-item.task-under-kkm {
+      border-color: var(--warning-orange-border);
+      background: var(--warning-orange-bg);
+    }
+
+    .task-item.task-passed {
+      border-color: #bbf7d0;
+      background: #ffffff;
+    }
+
+    .task-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--navy-primary);
+    }
+
+    .task-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .badge-done {
+      background: var(--success-light);
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-under-kkm {
+      background: #ffedd5;
+      color: #ea580c;
+      border: 1px solid #fed7aa;
+    }
+
+    .badge-empty {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .task-score-text {
+      font-weight: 900;
+      font-size: 1.25rem;
+    }
+
+    .task-score-text.score-empty {
+      color: var(--danger);
+    }
+
+    .task-score-text.score-under-kkm {
+      color: var(--warning-orange);
+    }
+
+    .task-score-text.score-passed {
+      color: var(--success);
+    }
+
+    /* ========================================================
+       4. DASHBOARD GURU / ADMIN MULTI-KELAS
+       ======================================================== */
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: var(--navy-primary);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 700;
+    }
+
+    /* KELAS SELECTOR TABS */
+    .classes-nav-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1.5px solid var(--border-color);
+      align-items: center;
+    }
+
+    .class-tab-pill {
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--navy-primary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .class-tab-pill:hover {
+      background: #e2e8f0;
+    }
+
+    .class-tab-pill.active {
+      background: var(--navy-primary);
+      color: #ffffff;
+      border-color: var(--navy-primary);
+      box-shadow: 0 4px 10px rgba(15, 41, 74, 0.2);
+    }
+
+    .btn-add-class {
+      background: #ffffff;
+      border: 1.5px dashed var(--blue-accent);
+      color: var(--blue-accent);
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .btn-add-class:hover {
+      background: var(--blue-subtle);
+    }
+
+    /* FILTER & SEARCH BAR ADMIN */
+    .admin-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      min-width: 220px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-pill);
+      outline: none;
+      color: var(--navy-primary);
+    }
+
+    .search-input:focus {
+      border-color: var(--navy-primary);
+    }
+
+    .filter-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--navy-primary);
+      color: #ffffff;
+      border-color: var(--navy-primary);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 22px;
+      background: #ffffff;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      text-align: left;
+    }
+
+    .badge-kelas {
+      display: inline-block;
+      padding: 3px 8px;
+      background: var(--blue-subtle);
+      color: var(--navy-primary);
+      border: 1px solid var(--blue-light);
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    .admin-table th {
+      background: var(--navy-primary);
+      padding: 12px 14px;
+      font-weight: 800;
+      color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    .admin-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+      color: var(--navy-primary);
+    }
+
+    .admin-table tr:hover {
+      background: #f8fafc;
+    }
+
+    .admin-table tfoot tr {
+      background: #f1f5f9;
+      font-weight: 800;
+    }
+
+    .admin-table tfoot td {
+      border-top: 2px solid var(--border-dark);
+      font-weight: 800;
+      color: var(--navy-primary);
+    }
+
+    .score-badge-table {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .score-badge-table.under-kkm {
+      color: #c2410c;
+      background: #ffedd5;
+      border: 1px solid #fed7aa;
+    }
+
+    .score-badge-table.passed {
+      color: #15803d;
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
+    }
+
+    .score-badge-table.empty {
+      color: #b91c1c;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+    }
+
+    /* ACTION BUTTONS GRID */
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    /* TOMBOL STANDAR */
+    .btn {
+      padding: 10px 18px;
+      background: var(--navy-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--navy-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--navy-primary);
+      border: 1.5px solid var(--border-color);
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+      border-color: var(--navy-primary);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      border-radius: 8px;
+    }
+
+    .btn-success {
+      background: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    /* MODAL OVERLAY */
+    .modal-overlay.active {
+      display: flex !important;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 41, 74, 0.65);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-header h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--navy-primary);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--danger);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: var(--navy-primary);
+    }
+
+    .form-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 15px;
+      font-size: 0.92rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      outline: none;
+      color: var(--navy-primary);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--navy-primary);
+      box-shadow: 0 0 0 3px rgba(15, 41, 74, 0.12);
+    }
+
+    .tasks-grid-edit {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    /* KOTAK KUSTOM LOGO SEKOLAH DALAM PENGATURAN */
+    .logo-custom-panel {
+      background: #f8fafc;
+      border: 1.5px dashed var(--border-dark);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .logo-preview-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #ffffff;
+      padding: 3px;
+      border: 2px solid var(--navy-primary);
+      margin-bottom: 10px;
+      box-shadow: 0 4px 10px rgba(15, 41, 74, 0.1);
+    }
+
+    .logo-options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .file-upload-btn-wrap {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-upload-input {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* MODAL LIST SISWA QUICK HELPER */
+    .student-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 6px;
+    }
+
+    .student-quick-chip {
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-pill);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .student-quick-chip:hover {
+      background: var(--blue-subtle);
+      border-color: var(--blue-accent);
+      color: var(--blue-accent);
+      transform: translateY(-1px);
+    }
+
+    /* PANDUAN SPREADSHEET CARD */
+    .sheets-guide-box {
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 0.86rem;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    .sheets-guide-box code {
+      background: #dcfce7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: bold;
+    }
+
+    /* PRINT STYLING & FORMAT RESMI */
+    .print-sheet-wrapper {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .bg-decor, .app-wrapper, .modal-overlay {
+        display: none !important;
+      }
+      .print-sheet-wrapper {
+        display: block !important;
+        padding: 15px;
+        font-family: Arial, sans-serif !important;
+      }
+      .print-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .print-header h2 {
+        font-size: 15pt;
+        font-weight: bold;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+      .print-header h3 {
+        font-size: 13pt;
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+      .print-header p {
+        font-size: 11pt;
+        font-weight: bold;
+      }
+      .print-meta {
+        font-size: 10pt;
+        margin-bottom: 12px;
+        line-height: 1.5;
+      }
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9.5pt;
+      }
+      .print-table th, .print-table td {
+        border: 1px solid #000000;
+        padding: 5px 6px;
+        text-align: center;
+      }
+      .print-table th {
+        background-color: #2d74b8 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-weight: bold;
+      }
+      .print-table td.text-left {
+        text-align: left;
+      }
+      .print-table tfoot td {
+        background-color: #2d74b8 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-weight: bold;
+      }
+      .print-signature-box {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+        text-align: center;
+        page-break-inside: avoid;
+      }
+      .print-signature-inner {
+        width: 250px;
+        font-size: 10pt;
+      }
+    }
+
+    /* TOAST NOTIFICATION */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy-primary);
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      font-size: 0.9rem;
+      font-weight: 700;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .toast-popup.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* SPINNER */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+      .score-card.highlight {
+        grid-column: span 1;
+      }
+      .admin-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .tasks-grid-edit {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        padding: 22px 18px;
+      }
+      .login-title-school {
+        font-size: 1.15rem;
+      }
+    }
+
+    /* CLOUD STATUS BADGE (SUPABASE & GITHUB) */
+    .cloud-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+      border: 1.5px solid var(--border-color);
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(15, 41, 74, 0.05);
+      color: var(--navy-primary);
+    }
+    .cloud-status-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(15, 41, 74, 0.12);
+      border-color: var(--blue-accent);
+    }
+    .cloud-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #eab308;
+      box-shadow: 0 0 0 2.5px rgba(234, 179, 8, 0.25);
+      transition: background 0.3s ease;
+    }
+    .cloud-dot.connected {
+      background: #16a34a;
+      box-shadow: 0 0 0 2.5px rgba(22, 163, 74, 0.25);
+    }
+    .cloud-dot.error {
+      background: #dc2626;
+      box-shadow: 0 0 0 2.5px rgba(220, 38, 38, 0.25);
+    }
+
+
+    /* PWA INSTALL BANNER UNTUK HP (MOBILE) */
+    .pwa-install-banner {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      background: #0f294a;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(15, 41, 74, 0.35);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      animation: slideUp 0.4s ease-out;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    @keyframes slideUp {
+      from { transform: translate(-50%, 40px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    .pwa-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .pwa-banner-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #fff;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .pwa-banner-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .pwa-banner-sub {
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+    .btn-pwa-install {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+      transition: all 0.2s ease;
+    }
+    .btn-pwa-install:hover {
+      background: #1d4ed8;
+      transform: scale(1.03);
+    }
+    .btn-pwa-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+    .btn-pwa-close:hover {
+      color: #fff;
+    }
+
+  </style>
+  <!-- SUPABASE JS SDK UNTUK DATABASE ONLINE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- DEKORASI BACKGROUND GEOMETRIS MODERN -->
+  <div class="bg-decor">
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
+    <div class="bg-accent-dot-1"></div>
+    <div class="bg-accent-dot-2"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <div class="container">
+
+      <!-- ========================================================
+           1. HALAMAN LOGIN (THEME NAVY & WHITE + BRAND NILAIKU)
+           ======================================================== -->
+      <div id="loginView">
+        
+        <!-- LOGO SEKOLAH (OFFICIAL SMP ISLAM AL AZHAR 30 TASIKMALAYA) -->
+        <div class="login-logo-box">
+          <img 
+            id="loginLogoImg" 
+            src="public/logo_alazhar.png" 
+            alt="Logo Sekolah" 
+            class="login-school-logo"
+          />
+        </div>
+
+        <!-- IDENTITAS BRAND APLIKASI: NILAIKU -->
+        <div class="brand-identity-box">
+          <span class="brand-app-name">NILAIKU</span>
+          <div class="brand-app-tagline">Sistem Informasi & Pelacakan Nilai Siswa</div>
+        </div>
+
+        <!-- STATUS KONEKSI SUPABASE ONLINE -->
+          <div id="loginCloudBadge" class="cloud-status-badge" onclick="bukaModalSupabase()" title="Klik untuk mengonfigurasi Database Supabase Cloud">
+            <span class="cloud-dot" id="cloudDotLogin"></span>
+            <span id="cloudTextLogin">Supabase: Memeriksa...</span>
+          </div>
+
+          <!-- IDENTITAS SEKOLAH, MATA PELAJARAN, & GURU -->
+        <h1 class="login-title-school" id="loginSchoolTitle">SMP ISLAM AL AZHAR 30 TASIKMALAYA</h1>
+        <h2 class="login-title-subject" id="loginSubjectTitle">BAHASA INDONESIA</h2>
+        <p class="login-teacher-name" id="loginTeacherSubtitle">Pengampu: Dadi, S.Pd., Gr</p>
+
+        <div class="login-card-inner">
+          <!-- SEGMENTED PILL SWITCH: MURID | GURU -->
+          <div class="role-pill-switch">
+            <button type="button" class="role-pill-btn active" id="btnRoleMurid" onclick="switchLoginRole('murid')">
+              MURID
+            </button>
+            <button type="button" class="role-pill-btn" id="btnRoleGuru" onclick="switchLoginRole('guru')">
+              GURU
+            </button>
+          </div>
+
+          <!-- FORM LOGIN MURID -->
+          <form id="formMurid" class="login-form-box" onsubmit="handleCekNilaiMurid(event)">
+            <input 
+              type="text" 
+              id="inputNISN" 
+              class="pill-input" 
+              placeholder="Masukkan NISN atau Nama" 
+              required 
+              autocomplete="off"
+            />
+            <button type="submit" id="btnSubmitMurid" class="pill-btn-submit">
+              <span id="btnTextMurid">CEK NILAI</span>
+              <div id="spinnerMurid" class="spinner"></div>
+            </button>
+            <div class="quick-helper-wrap">
+              <button type="button" class="btn-helper-link" onclick="bukaModalHelperSiswa()">
+                🔍 Lihat Daftar Siswa & NISN (Multi-Kelas)
+              </button>
+            </div>
+          </form>
+
+          <!-- FORM LOGIN GURU -->
+          <form id="formGuru" class="login-form-box" style="display: none;" onsubmit="handleLoginGuru(event)">
+            <input 
+              type="password" 
+              id="inputPasswordGuru" 
+              class="pill-input" 
+              placeholder="Masukkan Password Guru" 
+              required 
+              autocomplete="current-password"
+            />
+            <button type="submit" id="btnSubmitGuru" class="pill-btn-submit">
+              <span id="btnTextGuru">MASUK</span>
+              <div id="spinnerGuru" class="spinner"></div>
+            </button>
+            <div class="quick-helper-wrap">
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Default password guru: <code>guru123</code></span>
+            </div>
+          </form>
+
+          <!-- PESAN ERROR -->
+          <div id="loginError" class="login-error-alert"></div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================
+           2. DASHBOARD SISWA
+           ======================================================== -->
+      <div id="dashboardView">
+        <div class="card">
+          
+          <!-- HEADER KARTU SISWA -->
+          <div class="dashboard-header">
+            <img id="studentHeaderLogo" src="public/logo_alazhar.png" alt="Logo" class="header-logo-mini">
+            <br>
+            <span class="header-brand-badge">NILAIKU • PORTAL SISWA</span>
+            <br>
+            <span class="badge-subject" id="studentSubjectBadge">BAHASA INDONESIA</span>
+            <h1 class="app-title" id="studentSchoolTitle">SMP ISLAM AL AZHAR 30 TASIKMALAYA</h1>
+            <p class="app-subtitle" id="studentTeacherSubtitle">Pengampu: Dadi, S.Pd., Gr</p>
+            <div class="kkm-badge-info" id="studentKkmInfo">
+              🎯 Standar KKM: <strong>75</strong>
+            </div>
+          </div>
+
+          <!-- PROFIL SISWA -->
+          <div class="student-profile">
+            <div class="profile-info">
+              <h2 id="studentName">-</h2>
+              <p id="studentSubjectName">-</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <div class="nisn-chip" id="studentNISN">NISN: -</div>
+              <div class="nisn-chip" id="studentKelas">Kelas: -</div>
+            </div>
+          </div>
+
+          <!-- KOTAK PERINGATAN JIKA ADA TUGAS BELUM DIKERJAKAN (KOSONG) -->
+          <div id="missingTasksAlert" class="warning-box" style="display: none;">
+            <div class="warning-title">⚠️ Perhatian: Ada Tugas Belum Selesai</div>
+            <ul class="warning-list" id="missingTasksList"></ul>
+          </div>
+
+          <!-- GRID NILAI -->
+          <div class="score-grid">
+            <!-- NILAI SEMENTARA BESAR (HERO CARD) -->
+            <div class="score-card highlight" id="cardNilaiSementara">
+              <div class="score-label">Perkiraan Nilai Sementara</div>
+              <div class="score-value" id="valNilaiSementara">0</div>
+              <div class="score-sub" id="subNilaiSementara">Dihitung proporsional dari komponen yang sudah dinilai</div>
+            </div>
+            
+            <!-- KEHADIRAN -->
+            <div class="score-card">
+              <div class="score-label">Kehadiran</div>
+              <div class="score-value" id="valKehadiran">0</div>
+              <div class="score-sub" id="subKehadiran">Dari 16 Pertemuan</div>
+            </div>
+
+            <!-- RATA-RATA TUGAS -->
+            <div class="score-card" id="cardRataTugas">
+              <div class="score-label">Rata-rata Tugas</div>
+              <div class="score-value" id="valRataTugas">0</div>
+              <div class="score-sub" id="subRataTugas">Bobot 30%</div>
+            </div>
+
+            <!-- ASTS -->
+            <div class="score-card" id="cardASTS">
+              <div class="score-label">Nilai ASTS (PTS)</div>
+              <div class="score-value" id="valASTS">-</div>
+              <div class="score-sub" id="subASTS">Bobot 20%</div>
+            </div>
+
+            <!-- ASAS -->
+            <div class="score-card" id="cardASAS">
+              <div class="score-label">Nilai ASAS / ASAJ (PAS)</div>
+              <div class="score-value" id="valASAS">-</div>
+              <div class="score-sub" id="subASAS">Bobot 40%</div>
+            </div>
+          </div>
+
+          <!-- DAFTAR PENGERJAAN TUGAS BESERTA ATURAN WARNA KKM -->
+          <div class="section-title">
+            <span>Status Pengerjaan Tugas</span>
+            <span style="font-size: 0.82rem; font-weight: 800; color: var(--navy-primary);" id="taskKkmNote">
+              KKM: 75
+            </span>
+          </div>
+          <div id="taskListContainer">
+            <!-- Item tugas digenerate JS -->
+          </div>
+
+          <button type="button" class="btn btn-outline" style="margin-top: 20px; width: 100%;" onclick="kembaliKeLogin()">
+            ← Kembali ke Halaman Login
+          </button>
+
+        </div>
+      </div>
+
+      <!-- ========================================================
+           3. DASHBOARD GURU / ADMIN (MULTI-KELAS)
+           ======================================================== -->
+      <div id="adminDashboardView">
+        <div class="card">
+          
+          <!-- HEADER KARTU GURU -->
+          <div class="dashboard-header">
+            <img id="adminHeaderLogo" src="public/logo_alazhar.png" alt="Logo" class="header-logo-mini">
+            <br>
+            <span class="header-brand-badge">NILAIKU • PANEL GURU & KELAS</span>
+            <br>
+            <div id="adminCloudBadge" class="cloud-status-badge" onclick="bukaModalSupabase()" title="Klik untuk pengaturan Supabase Cloud">
+              <span class="cloud-dot" id="cloudDotAdmin"></span>
+              <span id="cloudTextAdmin">Supabase: Memeriksa...</span>
+            </div>
+            <br>
+            <h1 class="app-title" id="adminHeaderSchool">SMP ISLAM AL AZHAR 30 TASIKMALAYA</h1>
+            <p class="app-subtitle" id="adminHeaderTeacher">Pengampu: Dadi, S.Pd., Gr</p>
+          </div>
+
+          <div class="student-profile" style="align-items: center;">
+            <div>
+              <h2 style="font-size: 1.3rem;">Manajemen Nilai & Kelas</h2>
+              <p id="adminMapelLabel">Bahasa Indonesia • Multi-Kelas Aktif</p>
+              <div class="kkm-badge-info" style="margin-top: 6px;" id="adminKkmBadge">
+                🎯 KKM Saat Ini: <strong>75</strong>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-success btn-sm" onclick="bukaModalTambahSiswa()">
+                ➕ Tambah Siswa
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="kembaliKeLogin()">
+                Keluar (Logout)
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB PILIH KELAS AKTIF -->
+          <div class="section-title" style="margin-bottom: 8px;">
+            <span>Pilih Kelas:</span>
+          </div>
+          <div class="classes-nav-bar" id="classesNavBar">
+            <!-- Tombol filter kelas digenerate JS -->
+          </div>
+
+          <!-- STATISTIK KELAS -->
+          <div class="admin-stats">
+            <div class="stat-card">
+              <div class="stat-num" id="statTotalSiswa">0</div>
+              <div class="stat-label">Total Siswa Terpilih</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="statRataKelas">0</div>
+              <div class="stat-label">Rata-rata Nilai</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="statTugasKosong" style="color: var(--danger);">0</div>
+              <div class="stat-label">Tugas Belum Selesai</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="statTuntasRemedial" style="color: var(--success); font-size: 1.25rem; line-height: 1.8;">0 / 0</div>
+              <div class="stat-label">Tuntas / Remedial</div>
+            </div>
+          </div>
+
+          <!-- TABEL REKAPITULASI NILAI SELURUH SISWA -->
+          <div class="section-title">
+            <span id="recapTableTitle">Rekapitulasi Nilai Siswa</span>
+          </div>
+
+          <!-- PENCARIAN & FILTER -->
+          <div class="admin-filter-bar">
+            <div class="search-input-wrap">
+              <input 
+                type="text" 
+                id="searchStudentInput" 
+                class="search-input" 
+                placeholder="🔍 Cari nama siswa atau NISN..." 
+                oninput="handleSearchStudents(this.value)"
+              />
+            </div>
+            <div class="filter-btn-group">
+              <button type="button" class="filter-btn active" id="filterAll" onclick="setFilterCategory('all')">Semua Status</button>
+              <button type="button" class="filter-btn" id="filterMissing" onclick="setFilterCategory('missing')">Ada Tugas Kosong</button>
+              <button type="button" class="filter-btn" id="filterUnderKkm" onclick="setFilterCategory('under-kkm')">Di Bawah KKM</button>
+              <button type="button" class="filter-btn" id="filterPassed" onclick="setFilterCategory('passed')">Tuntas KKM</button>
+            </div>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>NO</th>
+                  <th>NISN</th>
+                  <th>Kelas</th>
+                  <th>Nama Siswa</th>
+                  <th>Kehadiran</th>
+                  <th>Tugas Kosong</th>
+                  <th>Rata Tugas</th>
+                  <th>ASTS</th>
+                  <th>ASAS</th>
+                  <th>Nilai Akhir</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <!-- Baris siswa digenerate oleh JS -->
+              </tbody>
+              <tfoot id="adminTableFoot">
+                <!-- Summary baris digenerate oleh JS: JUMLAH, RATA-RATA, TERTINGGI, TERENDAH -->
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- TOMBOL AKSI DATABASE SPREADSHEET & PENGATURAN -->
+          <div class="admin-actions">
+            <button type="button" id="btnSupabaseModalOpen" class="btn btn-primary" onclick="bukaModalSupabase()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; font-weight: 800;">
+              ⚡ Database Supabase Cloud
+            </button>
+            <button type="button" class="btn btn-outline" onclick="bukaModalPengaturan()">
+              ⚙️ Pengaturan Kelas & KKM
+            </button>
+            <button type="button" class="btn btn-outline" onclick="cetakFormatResmi()">
+              🖨️ Cetak Analisis ASTS 1 (Format Resmi)
+            </button>
+            <button type="button" class="btn btn-outline" onclick="eksporDataCSV()">
+              📥 Ekspor Spreadsheet (Format DataNilai)
+            </button>
+            <button type="button" class="btn btn-outline" onclick="salinHeaderSpreadsheet()">
+              📋 Salin Format Header DataNilai
+            </button>
+            <button type="button" class="btn btn-outline" onclick="bukaModalImporSpreadsheet()">
+              📥 Impor dari Spreadsheet
+            </button>
+            <a id="btnBukaSheets" href="#" target="_blank" class="btn btn-outline" style="text-decoration: none;">
+              📊 Buka Database Google Sheets ↗
+            </a>
+            <button type="button" class="btn btn-outline" style="color: var(--danger); border-color: var(--danger-border);" onclick="konfirmasiResetData()">
+              🔄 Reset Data ke Awal
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 1: EDIT NILAI SISWA (GURU)
+       ======================================================== -->
+  <div id="modalEditNilai" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalEditTitle">Edit Nilai Siswa</h3>
+        <button type="button" class="modal-close" onclick="tutupModalEdit()">✕</button>
+      </div>
+      <form id="formEditNilai" onsubmit="simpanNilaiDariModal(event)">
+        <input type="hidden" id="editNISN">
+        
+        <div class="form-group">
+          <label class="form-label">Nama Siswa</label>
+          <input type="text" id="editNamaSiswa" class="form-input" disabled style="background: #f1f5f9;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">Kelas Siswa</label>
+            <input type="text" id="editKelas" class="form-input" list="classesDatalist" placeholder="Contoh: VIII A" required>
+            <datalist id="classesDatalist"></datalist>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kehadiran (Pertemuan)</label>
+            <input type="number" id="editKehadiran" class="form-input" min="0" max="100" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nilai Tugas Harian (0-100, kosongkan jika belum mengumpulkan)</label>
+          <div id="containerInputTugas" class="tasks-grid-edit">
+            <!-- Input dinamis tugas siswa -->
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">Nilai ASTS (PTS)</label>
+            <input type="number" id="editASTS" class="form-input" min="0" max="100" placeholder="Kosong jika belum">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nilai ASAJ / ASAS (PAS)</label>
+            <input type="number" id="editASAS" class="form-input" min="0" max="100" placeholder="Kosong jika belum">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nilai Akhir (Manual/Resmi)</label>
+          <input type="number" id="editNilaiAkhir" class="form-input" min="0" max="100" placeholder="Kosongkan untuk perhitungan otomatis">
+          <div class="form-hint">Jika dikosongkan, nilai dihitung otomatis secara proporsional.</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="submit" id="btnSimpanNilai" class="btn btn-success" style="flex: 1;">
+            <span>Simpan Perubahan Nilai</span>
+          </button>
+          <button type="button" class="btn btn-outline" style="color: var(--danger); border-color: var(--danger-border);" onclick="hapusSiswaAktif()">
+            Hapus Siswa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 2: TAMBAH SISWA BARU
+       ======================================================== -->
+  <div id="modalTambahSiswa" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>➕ Tambah Siswa Baru</h3>
+        <button type="button" class="modal-close" onclick="tutupModalTambahSiswa()">✕</button>
+      </div>
+      <form onsubmit="handleTambahSiswa(event)">
+        <div class="form-group">
+          <label class="form-label">NISN Siswa</label>
+          <input type="text" id="tambahNISN" class="form-input" placeholder="Contoh: 4330-2526080" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap Siswa</label>
+          <input type="text" id="tambahNama" class="form-input" placeholder="Contoh: Ahmad Fauzan" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">Kelas Siswa</label>
+            <input type="text" id="tambahKelas" class="form-input" list="classesDatalist" placeholder="Pilih atau ketik baru (misal: VIII A)" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kehadiran Awal</label>
+            <input type="number" id="tambahKehadiran" class="form-input" value="16" min="0" max="100" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+          Daftarkan Siswa
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 3: TAMBAH KELAS BARU
+       ======================================================== -->
+  <div id="modalTambahKelas" class="modal-overlay">
+    <div class="modal-box" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3>➕ Tambah Kelas Baru</h3>
+        <button type="button" class="modal-close" onclick="tutupModalTambahKelas()">✕</button>
+      </div>
+      <form onsubmit="handleTambahKelasBaru(event)">
+        <div class="form-group">
+          <label class="form-label">Nama Kelas Baru</label>
+          <input type="text" id="inputNamaKelasBaru" class="form-input" placeholder="Contoh: VIII C, VII A, IX B" required autofocus>
+          <div class="form-hint">Kelas baru akan langsung aktif dan tersedia untuk pengelompokan siswa.</div>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">
+          Simpan Kelas
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 4: PENGATURAN KELAS & KUSTOM LOGO SEKOLAH
+       ======================================================== -->
+  <div id="modalPengaturan" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>⚙️ Pengaturan Identitas, Logo & KKM</h3>
+        <button type="button" class="modal-close" onclick="tutupModalPengaturan()">✕</button>
+      </div>
+      <form onsubmit="simpanPengaturanDariModal(event)">
+        
+        <!-- BAGIAN KUSTOM LOGO SEKOLAH -->
+        <div class="form-group">
+          <label class="form-label">🖼️ Logo Sekolah</label>
+          <div class="logo-custom-panel">
+            <img id="settingLogoPreview" src="public/logo_alazhar.png" alt="Preview Logo" class="logo-preview-img">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--navy-primary); margin-bottom: 8px;">
+              Pratinjau Logo Aktif
+            </div>
+
+            <div class="logo-options-group">
+              <button type="button" class="btn btn-outline btn-sm" onclick="terapkanLogoResmiAlAzhar()" style="width: 100%; justify-content: center;">
+                🔘 Gunakan Logo Resmi SMP Islam Al Azhar 30
+              </button>
+
+              <div class="file-upload-btn-wrap">
+                <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; background: #e0ecf8; border-color: #bcd7f5;">
+                  📁 Unggah File Foto JPG / PNG
+                </button>
+                <input 
+                  type="file" 
+                  id="inputUploadLogo" 
+                  class="file-upload-input" 
+                  accept="image/jpeg, image/png, image/webp" 
+                  onchange="handleLogoFileUpload(event)"
+                >
+              </div>
+            </div>
+          </div>
+
+          <label class="form-label" style="font-size: 0.8rem; margin-top: 8px;">Atau Masukkan URL Link Gambar Logo:</label>
+          <input 
+            type="text" 
+            id="settingLogoUrl" 
+            class="form-input" 
+            placeholder="https://... (URL gambar)"
+            oninput="document.getElementById('settingLogoPreview').src = this.value || OFFICIAL_DEFAULT_LOGO"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nama Sekolah</label>
+          <input type="text" id="settingSekolah" class="form-input" placeholder="Contoh: SMP ISLAM AL AZHAR 30 TASIKMALAYA" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">Mata Pelajaran</label>
+            <input type="text" id="settingMapel" class="form-input" placeholder="Contoh: BAHASA INDONESIA" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Guru Pengampu</label>
+            <input type="text" id="settingGuru" class="form-input" placeholder="Contoh: Dadi, S.Pd., Gr" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">🎯 Standar KKM</label>
+            <input 
+              type="number" 
+              id="settingKKM" 
+              class="form-input" 
+              min="1" 
+              max="100" 
+              placeholder="Default: 75" 
+              required
+              style="border-color: #ea580c; font-weight: 800;"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Maksimal Kehadiran</label>
+            <input type="number" id="settingMaxKehadiran" class="form-input" min="1" max="100" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password Guru / Admin</label>
+          <input type="text" id="settingPasswordGuru" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Link Database Google Sheets Anda</label>
+          <input type="url" id="settingSheetsUrl" class="form-input" placeholder="https://docs.google.com/spreadsheets/d/...">
+          <div class="form-hint">Masukkan tautan spreadsheet Google Sheets resmi Anda untuk dibuka langsung dari tombol database.</div>
+        </div>
+
+        <button type="submit" id="btnSimpanSetting" class="btn" style="width: 100%; margin-top: 10px;">
+          Simpan Pengaturan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 5: IMPOR SPREADSHEET (PASTE CSV / DATA DARI SHEETS)
+       ======================================================== -->
+  <div id="modalImporSpreadsheet" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>📥 Impor Data dari Google Sheets / Excel</h3>
+        <button type="button" class="modal-close" onclick="tutupModalImporSpreadsheet()">✕</button>
+      </div>
+
+      <div class="sheets-guide-box">
+        <strong>Format Kolom yang Didukung (Tab DataNilai):</strong><br>
+        <code>NISN</code> | <code>Nama</code> | <code>Kelas</code> | <code>Kehadiran</code> | <code>Tugas_1</code> | <code>Tugas_2</code> | <code>Tugas_3</code> | <code>Tugas_4</code> | <code>Tugas_5</code> | <code>ASTS</code> | <code>ASAS</code> | <code>NilaiAkhir</code><br>
+        <span style="font-size: 0.8rem; color: #15803d;">Anda cukup copy baris data dari Google Sheets / Excel lalu paste pada kolom teks di bawah!</span>
+      </div>
+
+      <form onsubmit="handleProsesImporData(event)">
+        <div class="form-group">
+          <label class="form-label">Tempel (Paste) Baris Data Di Sini:</label>
+          <textarea id="inputPasteData" class="form-input" rows="8" placeholder="4330-2526002&#9;Ainzya Putri M&#9;VIII B&#9;20&#9;81&#9;80&#9;80&#9;80&#9;85&#9;80&#9;0&#9;80&#10;..."></textarea>
+          <div class="form-hint">Mendukung format pemisah Tab (hasil copy langsung dari Google Sheets) maupun Koma (CSV).</div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn btn-success" style="flex: 1;">
+            Proses & Simpan ke NILAIKU
+          </button>
+          <button type="button" class="btn btn-outline" onclick="salinHeaderSpreadsheet()">
+            📋 Salin Header
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL 6: QUICK HELPER DAFTAR SISWA (MULTI-KELAS)
+       ======================================================== -->
+  <div id="modalHelperSiswa" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>👥 Pilih Siswa Untuk Cek Nilai Cepat</h3>
+        <button type="button" class="modal-close" onclick="tutupModalHelperSiswa()">✕</button>
+      </div>
+      
+      <!-- TAB FILTER KELAS DALAM MODAL HELPER -->
+      <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;" id="helperClassTabs">
+        <!-- Tab kelas digenerate JS -->
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        Klik salah satu nama siswa di bawah untuk mengisi otomatis kolom login & langsung melihat nilai:
+      </p>
+      
+      <div class="student-chips-container" id="helperStudentChips">
+        <!-- Chip siswa digenerate oleh JS -->
+      </div>
+      
+      <button type="button" class="btn btn-outline" style="margin-top: 16px; width: 100%;" onclick="tutupModalHelperSiswa()">
+        Tutup
+      </button>
+    </div>
+  </div>
+
+  
+  <!-- ========================================================
+       MODAL 7: KONEKSI SUPABASE CLOUD & GITHUB
+       ======================================================== -->
+  <div id="modalSupabaseConfig" class="modal-overlay" style="display: none;" onclick="if(event.target === this) tutupModalSupabase()">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.6rem;">⚡</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: var(--navy-primary);">Koneksi Supabase Cloud & GitHub</h3>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Database Online Real-Time untuk NILAIKU</div>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="tutupModalSupabase()">✕</button>
+      </div>
+
+      <!-- STATUS BANNER -->
+      <div id="supabaseStatusBanner" style="padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 16px; font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 10px; background: #fefce8; border: 1.5px solid #fef08a; color: #854d0e;">
+        <span class="cloud-dot" id="bannerCloudDot"></span>
+        <span id="bannerCloudText">Mode Offline (Data tersimpan di memori browser lokal)</span>
+      </div>
+
+      <form id="formSupabaseConfig" onsubmit="handleSimpanSupabaseConfig(event)">
+        <div class="form-group">
+          <label class="form-label">Supabase Project URL</label>
+          <input type="url" id="cfgSupabaseUrl" class="form-input" placeholder="https://xxxxxxxxxxxx.supabase.co" required>
+          <div class="form-hint">Sesuai project Anda: <code>https://qiqzgjuxbqdpwllaxzdu.supabase.co</code></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Anon (Public) Key</label>
+          <input type="password" id="cfgSupabaseKey" class="form-input" placeholder="Tempelkan 'anon public' key di sini..." autocomplete="off">
+          <div class="form-hint" style="line-height: 1.5; font-size: 0.8rem; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 6px;">
+            <strong>📌 Cara Salin Anon Key dari Dashboard Supabase:</strong><br>
+            1. Buka dashboard proyek Anda (<code>ferdianfer-creator's Project</code>)<br>
+            2. Klik menu <strong>Project Settings</strong> (ikon gerigi ⚙️ di bilah kiri bawah)<br>
+            3. Pilih menu <strong>API</strong><br>
+            4. Salin kunci panjang berlabel <strong><code>anon</code> <code>public</code></strong> lalu tempel di atas.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <button type="submit" id="btnTestSupabase" class="btn btn-primary" style="flex: 1; background: var(--navy-primary); color: white;">
+            🔌 Tes & Simpan Koneksi
+          </button>
+          <button type="button" class="btn btn-outline" onclick="putuskanKoneksiSupabase()" style="color: var(--danger); border-color: var(--danger-border);">
+            Putuskan
+          </button>
+        </div>
+      </form>
+
+      <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 16px;">
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--navy-primary); margin-bottom: 10px;">Sinkronisasi Data Cloud</h4>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button type="button" class="btn btn-success" onclick="uploadSeluruhDataKeSupabase()" style="width: 100%; text-align: center;">
+            ☁️ Upload Seluruh Data (52 Siswa) ke Supabase
+          </button>
+          <button type="button" class="btn btn-outline" onclick="unduhDataDariSupabase()" style="width: 100%; text-align: center;">
+            ⬇️ Tarik Data Terbaru dari Supabase ke Browser
+          </button>
+          <a href="supabase_schema.sql" download="supabase_schema.sql" class="btn btn-outline" style="text-decoration: none; text-align: center; color: var(--blue-accent); border-color: var(--blue-light);">
+            📄 Unduh File Skema SQL (supabase_schema.sql)
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================
+       PRINT SHEET WRAPPER (SESUAI DOKUMEN RESMI ASTS 1)
+       ======================================================== -->
+  <div class="print-sheet-wrapper" id="printSheet">
+    <div class="print-header">
+      <h2>ANALISIS HASIL PENILAIAN ASTS 1</h2>
+      <h3 id="printSchoolTitle">SMP ISLAM AL AZHAR 30 TASIKMALAYA</h3>
+      <p>TAHUN AJARAN 2026/2027</p>
+    </div>
+    
+    <div class="print-meta">
+      <div><strong>Mata Pelajaran * :</strong> <span id="printSubject">Bahasa Indonesia</span></div>
+      <div><strong>Kelas * :</strong> <span id="printClass">VIII A</span></div>
+    </div>
+
+    <table class="print-table">
+      <thead>
+        <tr>
+          <th style="width: 35px;">NO</th>
+          <th style="width: 250px;">NAMA</th>
+          <th style="width: 75px;">KEHADIRAN</th>
+          <th style="width: 80px;">TUGAS HARIAN</th>
+          <th style="width: 60px;">ASTS</th>
+          <th style="width: 60px;">ASAJ</th>
+          <th style="width: 70px;">NILAI AKHIR</th>
+        </tr>
+      </thead>
+      <tbody id="printTableBody">
+        <!-- Baris cetak digenerate JS -->
+      </tbody>
+      <tfoot id="printTableFoot">
+        <!-- Summary cetak digenerate JS -->
+      </tfoot>
+    </table>
+
+    <div class="print-signature-box">
+      <div class="print-signature-inner">
+        <p id="printDatePlace">Tasikmalaya, 28 September 2026</p>
+        <p>Guru Mata Pelajaran,</p>
+        <div style="height: 60px;"></div>
+        <p><strong id="printTeacherSign">Dadi, S.Pd., Gr</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastPopup" class="toast-popup">Notifikasi</div>
+
+  <!-- PWA INSTALL BANNER UNTUK PENGGUNA MOBILE (SISWA & GURU) -->
+  <div id="pwaInstallBanner" class="pwa-install-banner" style="display: none;">
+    <div class="pwa-banner-left">
+      <img src="public/logo_alazhar.png" alt="Logo" class="pwa-banner-logo">
+      <div>
+        <div class="pwa-banner-title">Pasang Aplikasi NILAIKU</div>
+        <div class="pwa-banner-sub">Akses nilai siswa instan dari layar utama HP</div>
+      </div>
+    </div>
+    <button type="button" class="btn-pwa-install" onclick="pasangPWA()">📲 Pasang</button>
+    <button type="button" class="btn-pwa-close" onclick="tutupPWABanner()" title="Tutup">✕</button>
+  </div>
+
+
+  <script>
+    // Logo resmi Al Azhar 30 (Base64)
+    const OFFICIAL_DEFAULT_LOGO = "data:image/png;base64,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";
+
+    // DEFINISI TUGAS HARIAN RESMI
+    const DEFAULT_TASKS_INFO = [
+      { id: 1, title: "Tugas 1: Struktur & Ciri Teks LHO", desc: "Menganalisis definisi umum, deskripsi bagian, dan deskripsi manfaat" },
+      { id: 2, title: "Tugas 2: Kaidah Kebahasaan Teks LHO", desc: "Verba, nomina, sinonim/antonim, dan kalimat definisi/deskripsi" },
+      { id: 3, title: "Tugas 3: Paragraf Eksposisi & Fakta Opini", desc: "Menulis paragraf eksposisi dan membedakan fakta dengan opini" },
+      { id: 4, title: "Tugas 4: Unsur Iklan, Slogan, dan Poster", desc: "Menganalisis pesan persuasif dan elemen teks iklan komersial" },
+      { id: 5, title: "Tugas 5: Resensi dan Ulasan Cerita Pendek", desc: "Menulis ulasan kritis cerpen remaja dan nilai-nilai moral kehidupan" }
+    ];
+
+    // DATA INITIAL SISWA (52 SISWA: KELAS VIII A & KELAS VIII B)
+    const DEFAULT_STUDENTS = [
+  {
+    "no": 1,
+    "nisn": "4330-2526101",
+    "name": "Adinda Sabina Putri Cuhva",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      88,
+      85,
+      90,
+      86,
+      92
+    ],
+    "asts": 88,
+    "asaj": 90
+  },
+  {
+    "no": 2,
+    "nisn": "4330-2526102",
+    "name": "Alisha Khusnaira",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      92,
+      90,
+      95,
+      92,
+      94
+    ],
+    "asts": 93,
+    "asaj": 94
+  },
+  {
+    "no": 3,
+    "nisn": "4330-2526103",
+    "name": "Anaya Waheeda Prilia",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      82,
+      85,
+      80,
+      88
+    ],
+    "asts": 84,
+    "asaj": 86
+  },
+  {
+    "no": 4,
+    "nisn": "4330-2526104",
+    "name": "Bilqis Sharliz Queenzha",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      90,
+      88,
+      92,
+      90,
+      95
+    ],
+    "asts": 90,
+    "asaj": 92
+  },
+  {
+    "no": 5,
+    "nisn": "4330-2526105",
+    "name": "Daffa Al Abrar Al Fansyah",
+    "class": "VIII A",
+    "attendance": 14,
+    "tasks": [
+      78,
+      75,
+      72,
+      null,
+      76
+    ],
+    "asts": 74,
+    "asaj": null
+  },
+  {
+    "no": 6,
+    "nisn": "4330-2526106",
+    "name": "Janetta Aleyza Andiputri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      88,
+      90,
+      86,
+      92,
+      90
+    ],
+    "asts": 89,
+    "asaj": 91
+  },
+  {
+    "no": 7,
+    "nisn": "4330-2526107",
+    "name": "Kasyfi Syarifi Rosdiansyah",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      82,
+      80,
+      85,
+      84,
+      86
+    ],
+    "asts": 82,
+    "asaj": 85
+  },
+  {
+    "no": 8,
+    "nisn": "4330-2526108",
+    "name": "Keenar Liyana",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      94,
+      92,
+      96,
+      95,
+      98
+    ],
+    "asts": 95,
+    "asaj": 96
+  },
+  {
+    "no": 9,
+    "nisn": "4330-2526109",
+    "name": "M Revhan Akhtar Aditya",
+    "class": "VIII A",
+    "attendance": 14,
+    "tasks": [
+      76,
+      74,
+      80,
+      75,
+      null
+    ],
+    "asts": 78,
+    "asaj": null
+  },
+  {
+    "no": 10,
+    "nisn": "4330-2526110",
+    "name": "M. Raffa Azzikra",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      80,
+      82,
+      84,
+      80,
+      85
+    ],
+    "asts": 82,
+    "asaj": 84
+  },
+  {
+    "no": 11,
+    "nisn": "4330-2526111",
+    "name": "Mikalla Efrans Wiramapta",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      86,
+      88,
+      85,
+      90,
+      88
+    ],
+    "asts": 87,
+    "asaj": 89
+  },
+  {
+    "no": 12,
+    "nisn": "4330-2526112",
+    "name": "Moch Bilal Muhaimin Pranata",
+    "class": "VIII A",
+    "attendance": 13,
+    "tasks": [
+      72,
+      null,
+      74,
+      70,
+      75
+    ],
+    "asts": 72,
+    "asaj": null
+  },
+  {
+    "no": 13,
+    "nisn": "4330-2526113",
+    "name": "Moh Mandala Putra",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      84,
+      86,
+      88,
+      90
+    ],
+    "asts": 86,
+    "asaj": 88
+  },
+  {
+    "no": 14,
+    "nisn": "4330-2526114",
+    "name": "Muh Al Fatih Mikail Marindra",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      90,
+      92,
+      88,
+      94,
+      92
+    ],
+    "asts": 91,
+    "asaj": 93
+  },
+  {
+    "no": 15,
+    "nisn": "4330-2526115",
+    "name": "Muhammad Aldrin Alghifari",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      82,
+      85,
+      80,
+      86,
+      84
+    ],
+    "asts": 83,
+    "asaj": 85
+  },
+  {
+    "no": 16,
+    "nisn": "4330-2526116",
+    "name": "Nafis Ahmad A",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      82,
+      86,
+      85,
+      88
+    ],
+    "asts": 85,
+    "asaj": 87
+  },
+  {
+    "no": 17,
+    "nisn": "4330-2526117",
+    "name": "Nindya Kireina Ramadhani",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      92,
+      90,
+      94,
+      95,
+      96
+    ],
+    "asts": 93,
+    "asaj": 95
+  },
+  {
+    "no": 18,
+    "nisn": "4330-2526118",
+    "name": "Nizar Zilmi Syahban",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      80,
+      78,
+      82,
+      84,
+      82
+    ],
+    "asts": 80,
+    "asaj": 83
+  },
+  {
+    "no": 19,
+    "nisn": "4330-2526119",
+    "name": "Pradipta Driyarkara Qytara Puruhita Galur Suryana Putri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      95,
+      94,
+      96,
+      98,
+      97
+    ],
+    "asts": 96,
+    "asaj": 97
+  },
+  {
+    "no": 20,
+    "nisn": "4330-2526120",
+    "name": "Qhillan Tanisya Saquilla",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      88,
+      86,
+      90,
+      92,
+      89
+    ],
+    "asts": 89,
+    "asaj": 91
+  },
+  {
+    "no": 21,
+    "nisn": "4330-2526121",
+    "name": "Qisya Batrisya Irdina",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      91,
+      92,
+      90,
+      93,
+      95
+    ],
+    "asts": 92,
+    "asaj": 94
+  },
+  {
+    "no": 22,
+    "nisn": "4330-2526122",
+    "name": "Salma Khoerunnisa",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      89,
+      91,
+      88,
+      92,
+      90
+    ],
+    "asts": 90,
+    "asaj": 92
+  },
+  {
+    "no": 23,
+    "nisn": "4330-2526123",
+    "name": "Syaima Nurul Aisyah",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      93,
+      95,
+      92,
+      94,
+      96
+    ],
+    "asts": 94,
+    "asaj": 95
+  },
+  {
+    "no": 24,
+    "nisn": "4330-2526124",
+    "name": "Tazka Azfar Ramadhan",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      82,
+      85,
+      86,
+      88
+    ],
+    "asts": 85,
+    "asaj": 87
+  },
+  {
+    "no": 25,
+    "nisn": "4330-2526125",
+    "name": "Tiara Mega Nurliana",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      90,
+      92,
+      91,
+      94,
+      93
+    ],
+    "asts": 91,
+    "asaj": 93
+  },
+  {
+    "no": 26,
+    "nisn": "4330-2526126",
+    "name": "Vidya Nur Ismaya Putri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      92,
+      94,
+      95,
+      96,
+      95
+    ],
+    "asts": 93,
+    "asaj": 95
+  },
+  {
+    "no": 1,
+    "nisn": "4330-2526002",
+    "name": "Ainzya Putri M",
+    "class": "VIII B",
+    "attendance": 20,
+    "tasks": [
+      81,
+      80,
+      80,
+      80,
+      85
+    ],
+    "asts": 80,
+    "asaj": 0
+  },
+  {
+    "no": 2,
+    "nisn": "4330-2526004",
+    "name": "Alfina Nadia Fauziah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      88,
+      86,
+      84,
+      85
+    ],
+    "asts": 85,
+    "asaj": 80
+  },
+  {
+    "no": 3,
+    "nisn": "4330-2526011",
+    "name": "Aryan Rasyad Noor Iksan",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      82,
+      80,
+      85,
+      84,
+      86
+    ],
+    "asts": 83,
+    "asaj": 82
+  },
+  {
+    "no": 4,
+    "nisn": "4330-2526015",
+    "name": "Chayra Ghaziya Zahran",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      90,
+      92,
+      88,
+      90,
+      94
+    ],
+    "asts": 91,
+    "asaj": 90
+  },
+  {
+    "no": 5,
+    "nisn": "4330-2526017",
+    "name": "Devan Alvian Mubarok",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      80,
+      82,
+      84,
+      85,
+      80
+    ],
+    "asts": 82,
+    "asaj": 84
+  },
+  {
+    "no": 6,
+    "nisn": "4330-2526019",
+    "name": "Fadlan Fazlurrahman",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      86,
+      88,
+      85,
+      87,
+      89
+    ],
+    "asts": 87,
+    "asaj": 88
+  },
+  {
+    "no": 7,
+    "nisn": "4330-2526020",
+    "name": "Faisya Nida Rahmah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      88,
+      90,
+      92,
+      89,
+      91
+    ],
+    "asts": 90,
+    "asaj": 92
+  },
+  {
+    "no": 8,
+    "nisn": "4330-2526021",
+    "name": "Faiz Muhammad Faisal",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      82,
+      86,
+      85,
+      88
+    ],
+    "asts": 85,
+    "asaj": 86
+  },
+  {
+    "no": 9,
+    "nisn": "4330-2526023",
+    "name": "Farin Naura Zafarani",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      91,
+      93,
+      90,
+      92,
+      94
+    ],
+    "asts": 92,
+    "asaj": 93
+  },
+  {
+    "no": 10,
+    "nisn": "4330-2526026",
+    "name": "Hannah Sabrina Maryam",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      90,
+      89,
+      92,
+      91,
+      95
+    ],
+    "asts": 91,
+    "asaj": 92
+  },
+  {
+    "no": 11,
+    "nisn": "4330-2526032",
+    "name": "Keyra Navira Danate",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      84,
+      88,
+      86,
+      87
+    ],
+    "asts": 86,
+    "asaj": 88
+  },
+  {
+    "no": 12,
+    "nisn": "4330-2526034",
+    "name": "Lintang Ramadhan Sukmadiraja",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      83,
+      85,
+      82,
+      86,
+      84
+    ],
+    "asts": 84,
+    "asaj": 85
+  },
+  {
+    "no": 13,
+    "nisn": "4330-2526037",
+    "name": "Maryam Ali",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      92,
+      94,
+      91,
+      93,
+      95
+    ],
+    "asts": 93,
+    "asaj": 94
+  },
+  {
+    "no": 14,
+    "nisn": "4330-2526040",
+    "name": "Muhammad Irsyad Rifky Alkhairu",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      82,
+      84,
+      80,
+      85,
+      83
+    ],
+    "asts": 84,
+    "asaj": 85
+  },
+  {
+    "no": 15,
+    "nisn": "4330-2526049",
+    "name": "Muhammad Kenzie Ammar Sudjana",
+    "class": "VIII B",
+    "attendance": 14,
+    "tasks": [
+      78,
+      75,
+      72,
+      null,
+      76
+    ],
+    "asts": 74,
+    "asaj": null
+  },
+  {
+    "no": 16,
+    "nisn": "4330-2526033",
+    "name": "Muhammad Khairan Fasyza Jabar",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      89,
+      91,
+      88,
+      90,
+      92
+    ],
+    "asts": 90,
+    "asaj": 91
+  },
+  {
+    "no": 17,
+    "nisn": "4330-2526050",
+    "name": "Muhammad Rizky Abdul Ba'its",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      86,
+      85,
+      88,
+      87,
+      89
+    ],
+    "asts": 87,
+    "asaj": 88
+  },
+  {
+    "no": 18,
+    "nisn": "4330-2526054",
+    "name": "Naura Ayumi",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      94,
+      93,
+      95,
+      96,
+      97
+    ],
+    "asts": 95,
+    "asaj": 96
+  },
+  {
+    "no": 19,
+    "nisn": "4330-2526060",
+    "name": "Qonita Hanifa",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      91,
+      90,
+      93,
+      92,
+      94
+    ],
+    "asts": 92,
+    "asaj": 93
+  },
+  {
+    "no": 20,
+    "nisn": "4330-2526063",
+    "name": "Ray Jibran Elbany",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      86,
+      84,
+      88,
+      87
+    ],
+    "asts": 86,
+    "asaj": 87
+  },
+  {
+    "no": 21,
+    "nisn": "4330-2526065",
+    "name": "Rizqi Rijaldi",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      88,
+      90,
+      87,
+      89,
+      91
+    ],
+    "asts": 89,
+    "asaj": 90
+  },
+  {
+    "no": 22,
+    "nisn": "4330-2526067",
+    "name": "Rizqia Nafiza Putri Eldiansyah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      93,
+      92,
+      95,
+      94,
+      96
+    ],
+    "asts": 94,
+    "asaj": 95
+  },
+  {
+    "no": 23,
+    "nisn": "4330-2526070",
+    "name": "Shayna Clarissa Abelia",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      90,
+      92,
+      89,
+      91,
+      93
+    ],
+    "asts": 91,
+    "asaj": 92
+  },
+  {
+    "no": 24,
+    "nisn": "4330-2526069",
+    "name": "Syabil Azhfar Hidayat",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      85,
+      82,
+      86,
+      85
+    ],
+    "asts": 85,
+    "asaj": 86
+  },
+  {
+    "no": 25,
+    "nisn": "4330-2526072",
+    "name": "Syakira Az Zahra",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      95,
+      94,
+      96,
+      97,
+      98
+    ],
+    "asts": 96,
+    "asaj": 97
+  },
+  {
+    "no": 26,
+    "nisn": "4330-2526075",
+    "name": "Zaky Fajarul Anwar",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      87,
+      88,
+      85,
+      89,
+      88
+    ],
+    "asts": 88,
+    "asaj": 89
+  }
+];
+    const DEFAULT_CLASSES = ["VIII A","VIII B"];
+
+    const DEFAULT_CONFIG = {
+      appName: "NILAIKU",
+      schoolName: "SMP ISLAM AL AZHAR 30 TASIKMALAYA",
+      subjectName: "BAHASA INDONESIA",
+      teacherName: "Dadi, S.Pd., Gr",
+      activeClass: "VIII A",
+      classes: DEFAULT_CLASSES,
+      schoolYear: "2026/2027",
+      kkm: 75,
+      maxAttendance: 16,
+      passwordGuru: "guru123",
+      supabaseUrl: "https://qiqzgjuxbqdpwllaxzdu.supabase.co",
+      supabaseAnonKey: "",
+      googleSheetsUrl: "https://docs.google.com/spreadsheets/u/0/",
+      dateDoc: "Tasikmalaya, 28 September 2026",
+      logoUrl: OFFICIAL_DEFAULT_LOGO
+    };
+
+    // STATE APLIKASI
+    let appConfig = loadConfig();
+    let studentsList = loadStudents();
+    let currentRole = 'murid';
+    let currentStudent = null;
+    let selectedClassTab = 'all'; // 'all' atau nama kelas spesifik
+    let activeFilter = 'all';
+    let helperSelectedClass = 'all';
+
+    // INISIALISASI SAAT DOKUMEN SIAP
+    document.addEventListener('DOMContentLoaded', () => {
+      applyConfigToUI();
+      renderClassTabs();
+      renderAdminTable();
+      renderHelperChips();
+      populateClassDatalist();
+    });
+
+    
+    // ========================================================
+    // SUPABASE CLIENT & CLOUD SYNC MODULE
+    // ========================================================
+    let supabaseClient = null;
+
+    function getSupabaseClient() {
+      if (supabaseClient) return supabaseClient;
+      const url = appConfig.supabaseUrl || "https://qiqzgjuxbqdpwllaxzdu.supabase.co";
+      const key = appConfig.supabaseAnonKey;
+      if (window.supabase && url && key && key.trim() !== '') {
+        try {
+          supabaseClient = window.supabase.createClient(url.trim(), key.trim());
+          return supabaseClient;
+        } catch (e) {
+          console.error("Gagal inisialisasi Supabase client:", e);
+        }
+      }
+      return null;
+    }
+
+    function updateCloudStatusUI(isConnected, message) {
+      const dots = [
+        document.getElementById('cloudDotLogin'),
+        document.getElementById('cloudDotAdmin'),
+        document.getElementById('bannerCloudDot')
+      ];
+      const texts = [
+        document.getElementById('cloudTextLogin'),
+        document.getElementById('cloudTextAdmin'),
+        document.getElementById('bannerCloudText')
+      ];
+
+      dots.forEach(dot => {
+        if (!dot) return;
+        dot.className = 'cloud-dot ' + (isConnected ? 'connected' : (message && message.includes('Gagal') ? 'error' : ''));
+      });
+
+      texts.forEach(txt => {
+        if (!txt) return;
+        txt.textContent = isConnected ? 'Supabase: Online' : (message || 'Mode Offline');
+      });
+
+      const banner = document.getElementById('supabaseStatusBanner');
+      if (banner) {
+        if (isConnected) {
+          banner.style.background = '#f0fdf4';
+          banner.style.borderColor = '#bbf7d0';
+          banner.style.color = '#15803d';
+        } else {
+          banner.style.background = '#fefce8';
+          banner.style.borderColor = '#fef08a';
+          banner.style.color = '#854d0e';
+        }
+      }
+    }
+
+    async function checkSupabaseConnection(silent = false) {
+      const client = getSupabaseClient();
+      if (!client) {
+        updateCloudStatusUI(false, 'Mode Offline (Lokal)');
+        return false;
+      }
+
+      try {
+        const { data, error } = await client.from('classes').select('name').limit(1);
+        if (error) throw error;
+        updateCloudStatusUI(true, 'Supabase Cloud Terhubung');
+        if (!silent) showToast('✅ Supabase Terhubung!');
+        return true;
+      } catch (err) {
+        console.warn('Gagal tersambung ke Supabase:', err);
+        updateCloudStatusUI(false, 'Supabase Offline (Cek Anon Key)');
+        if (!silent) showToast('⚠️ Belum tersambung ke Supabase: ' + (err.message || 'Cek Anon Key'));
+        return false;
+      }
+    }
+
+    function bukaModalSupabase() {
+      const modal = document.getElementById('modalSupabaseConfig');
+      if (!modal) {
+        alert('Modal Supabase tidak ditemukan.');
+        return;
+      }
+      const urlInput = document.getElementById('cfgSupabaseUrl');
+      if (urlInput) urlInput.value = appConfig.supabaseUrl || "https://qiqzgjuxbqdpwllaxzdu.supabase.co";
+      const keyInput = document.getElementById('cfgSupabaseKey');
+      if (keyInput) keyInput.value = appConfig.supabaseAnonKey || "";
+
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+
+      try {
+        checkSupabaseConnection(true);
+      } catch (err) {
+        console.warn('Error saat cek koneksi:', err);
+      }
+    }
+
+    function tutupModalSupabase() {
+      const modal = document.getElementById('modalSupabaseConfig');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+      }
+    }
+
+    async function handleSimpanSupabaseConfig(e) {
+      e.preventDefault();
+      const url = document.getElementById('cfgSupabaseUrl').value.trim();
+      const key = document.getElementById('cfgSupabaseKey').value.trim();
+
+      appConfig.supabaseUrl = url;
+      appConfig.supabaseAnonKey = key;
+      supabaseClient = null; // reset instance
+
+      saveConfig(appConfig);
+
+      const isConnected = await checkSupabaseConnection(false);
+      if (isConnected) {
+        showToast('✅ Berhasil terhubung ke Supabase Cloud!');
+        // otomatis unduh data jika ada
+        await unduhDataDariSupabase(true);
+      } else {
+        alert('Koneksi belum berhasil. Pastikan Anda sudah menjalankan query di supabase_schema.sql pada Supabase SQL Editor dan menyalin anon public key dengan benar.');
+      }
+    }
+
+    function putuskanKoneksiSupabase() {
+      if (confirm('Apakah Anda ingin memutuskan koneksi Supabase? Aplikasi akan beralih ke penyimpanan lokal browser.')) {
+        appConfig.supabaseAnonKey = '';
+        supabaseClient = null;
+        saveConfig(appConfig);
+        updateCloudStatusUI(false, 'Mode Offline (Lokal)');
+        showToast('Koneksi Supabase diputuskan. Menggunakan mode lokal.');
+      }
+    }
+
+    // MAPPER FUNCTIONS
+    function mapRowToStudent(row) {
+      return {
+        nisn: String(row.nisn),
+        name: row.name,
+        class: row.class || 'VIII A',
+        attendance: row.attendance !== null && row.attendance !== undefined ? Number(row.attendance) : 0,
+        tasks: [
+          row.task_1 !== null && row.task_1 !== undefined ? Number(row.task_1) : null,
+          row.task_2 !== null && row.task_2 !== undefined ? Number(row.task_2) : null,
+          row.task_3 !== null && row.task_3 !== undefined ? Number(row.task_3) : null,
+          row.task_4 !== null && row.task_4 !== undefined ? Number(row.task_4) : null,
+          row.task_5 !== null && row.task_5 !== undefined ? Number(row.task_5) : null
+        ],
+        asts: row.asts !== null && row.asts !== undefined ? Number(row.asts) : null,
+        asaj: row.asaj !== null && row.asaj !== undefined ? Number(row.asaj) : null,
+        manualFinalScore: row.manual_final_score !== null && row.manual_final_score !== undefined ? Number(row.manual_final_score) : null
+      };
+    }
+
+    function mapStudentToRow(student) {
+      return {
+        nisn: String(student.nisn).trim(),
+        name: student.name.trim(),
+        class: (student.class || 'VIII A').trim(),
+        attendance: Number(student.attendance) || 0,
+        task_1: student.tasks && student.tasks[0] !== null && student.tasks[0] !== undefined ? Number(student.tasks[0]) : null,
+        task_2: student.tasks && student.tasks[1] !== null && student.tasks[1] !== undefined ? Number(student.tasks[1]) : null,
+        task_3: student.tasks && student.tasks[2] !== null && student.tasks[2] !== undefined ? Number(student.tasks[2]) : null,
+        task_4: student.tasks && student.tasks[3] !== null && student.tasks[3] !== undefined ? Number(student.tasks[3]) : null,
+        task_5: student.tasks && student.tasks[4] !== null && student.tasks[4] !== undefined ? Number(student.tasks[4]) : null,
+        asts: student.asts !== null && student.asts !== undefined ? Number(student.asts) : null,
+        asaj: student.asaj !== null && student.asaj !== undefined ? Number(student.asaj) : null,
+        manual_final_score: student.manualFinalScore !== null && student.manualFinalScore !== undefined ? Number(student.manualFinalScore) : null
+      };
+    }
+
+    // UPLOAD / SINKRONISASI 52 SISWA KE SUPABASE
+    async function uploadSeluruhDataKeSupabase() {
+      const client = getSupabaseClient();
+      if (!client) {
+        alert('Harap masukkan Supabase Anon Key dan simpan koneksi terlebih dahulu!');
+        return;
+      }
+
+      showToast('⏳ Mengunggah ' + studentsList.length + ' siswa ke Supabase...');
+
+      try {
+        // 1. Upsert kelas
+        const classesToInsert = appConfig.classes.map(c => ({ name: c }));
+        await client.from('classes').upsert(classesToInsert, { onConflict: 'name' });
+
+        // 2. Upsert config
+        await client.from('app_config').upsert({
+          id: 1,
+          app_name: appConfig.appName,
+          school_name: appConfig.schoolName,
+          subject_name: appConfig.subjectName,
+          teacher_name: appConfig.teacherName,
+          academic_year: appConfig.schoolYear,
+          kkm: Number(appConfig.kkm) || 75,
+          max_attendance: Number(appConfig.maxAttendance) || 16,
+          admin_password: appConfig.passwordGuru || 'guru123',
+          spreadsheet_url: appConfig.googleSheetsUrl || ''
+        });
+
+        // 3. Upsert seluruh siswa
+        const rows = studentsList.map(s => mapStudentToRow(s));
+        const { data, error } = await client.from('students').upsert(rows, { onConflict: 'nisn' });
+
+        if (error) throw error;
+
+        showToast('🎉 Berhasil mengunggah ' + rows.length + ' siswa ke Supabase Cloud!');
+        updateCloudStatusUI(true, 'Supabase: Terhubung & Tersinkronisasi');
+      } catch (err) {
+        console.error('Upload Supabase error:', err);
+        alert('Gagal mengunggah data ke Supabase: ' + (err.message || 'Periksa skema tabel'));
+      }
+    }
+
+    // UNDUH DATA DARI SUPABASE
+    async function unduhDataDariSupabase(silent = false) {
+      const client = getSupabaseClient();
+      if (!client) {
+        if (!silent) alert('Harap masukkan Supabase Anon Key dan hubungkan terlebih dahulu!');
+        return;
+      }
+
+      try {
+        // Ambil kelas
+        const { data: clsData } = await client.from('classes').select('name');
+        if (clsData && clsData.length > 0) {
+          clsData.forEach(c => {
+            if (!appConfig.classes.includes(c.name)) appConfig.classes.push(c.name);
+          });
+          saveConfig(appConfig);
+        }
+
+        // Ambil siswa
+        const { data: stdData, error: stdErr } = await client.from('students').select('*').order('name', { ascending: true });
+        if (stdErr) throw stdErr;
+
+        if (stdData && stdData.length > 0) {
+          studentsList = stdData.map(r => mapRowToStudent(r));
+          saveStudents(studentsList);
+          renderClassTabs();
+          renderAdminTable();
+          if (!silent) showToast('✅ Berhasil memuat ' + stdData.length + ' siswa dari Supabase Cloud!');
+        } else {
+          if (!silent) showToast('ℹ️ Supabase terhubung, namun tabel siswa masih kosong.');
+        }
+      } catch (err) {
+        console.error('Unduh Supabase error:', err);
+        if (!silent) alert('Gagal mengambil data dari Supabase: ' + err.message);
+      }
+    }
+
+    // HOOK SAVE STUDENT KE SUPABASE DI LATAR BELAKANG
+    async function syncStudentToCloud(student) {
+      const client = getSupabaseClient();
+      if (!client) return;
+      try {
+        const row = mapStudentToRow(student);
+        await client.from('students').upsert(row, { onConflict: 'nisn' });
+      } catch (err) {
+        console.warn('Gagal sinkron siswa ke Supabase:', err);
+      }
+    }
+
+    async function syncDeleteStudentToCloud(nisn) {
+      const client = getSupabaseClient();
+      if (!client) return;
+      try {
+        await client.from('students').delete().eq('nisn', String(nisn).trim());
+      } catch (err) {
+        console.warn('Gagal hapus siswa dari Supabase:', err);
+      }
+    }
+
+    // 1. LOCAL STORAGE MANAGERS
+    function loadConfig() {
+      try {
+        const saved = localStorage.getItem('nilaiku_app_config');
+        return saved ? Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved)) : DEFAULT_CONFIG;
+      } catch (e) {
+        return DEFAULT_CONFIG;
+      }
+    }
+
+    function saveConfig(cfg) {
+      appConfig = cfg;
+      localStorage.setItem('nilaiku_app_config', JSON.stringify(appConfig));
+      applyConfigToUI();
+      renderClassTabs();
+      populateClassDatalist();
+    }
+
+    function loadStudents() {
+      try {
+        const saved = localStorage.getItem('nilaiku_students_data');
+        return saved ? JSON.parse(saved) : DEFAULT_STUDENTS;
+      } catch (e) {
+        return DEFAULT_STUDENTS;
+      }
+    }
+
+    function saveStudents(data) {
+      studentsList = data;
+      localStorage.setItem('nilaiku_students_data', JSON.stringify(studentsList));
+      
+      // Update daftar kelas otomatis jika ada kelas baru dari siswa
+      const existingClasses = new Set(appConfig.classes || DEFAULT_CLASSES);
+      studentsList.forEach(s => {
+        if (s.class && !existingClasses.has(s.class)) {
+          existingClasses.add(s.class);
+        }
+      });
+      appConfig.classes = Array.from(existingClasses);
+      saveConfig(appConfig);
+
+      renderClassTabs();
+      renderAdminTable();
+      renderHelperChips();
+      populateClassDatalist();
+    }
+
+    function populateClassDatalist() {
+      const dl = document.getElementById('classesDatalist');
+      if (!dl) return;
+      dl.innerHTML = '';
+      (appConfig.classes || DEFAULT_CLASSES).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        dl.appendChild(opt);
+      });
+    }
+
+    function applyConfigToUI() {
+      const logo = appConfig.logoUrl || OFFICIAL_DEFAULT_LOGO;
+      document.getElementById('loginLogoImg').src = logo;
+      document.getElementById('studentHeaderLogo').src = logo;
+      document.getElementById('adminHeaderLogo').src = logo;
+      document.getElementById('settingLogoPreview').src = logo;
+
+      document.getElementById('loginSchoolTitle').textContent = appConfig.schoolName;
+      document.getElementById('studentSchoolTitle').textContent = appConfig.schoolName;
+      document.getElementById('adminHeaderSchool').textContent = appConfig.schoolName;
+      document.getElementById('printSchoolTitle').textContent = appConfig.schoolName;
+
+      document.getElementById('loginSubjectTitle').textContent = appConfig.subjectName;
+      document.getElementById('studentSubjectBadge').textContent = appConfig.subjectName;
+      document.getElementById('adminMapelLabel').textContent = appConfig.subjectName + ' • Multi-Kelas Aktif';
+      document.getElementById('printSubject').textContent = appConfig.subjectName;
+
+      document.getElementById('loginTeacherSubtitle').textContent = 'Pengampu: ' + appConfig.teacherName;
+      document.getElementById('studentTeacherSubtitle').textContent = 'Pengampu: ' + appConfig.teacherName;
+      document.getElementById('adminHeaderTeacher').textContent = 'Pengampu: ' + appConfig.teacherName;
+      document.getElementById('printTeacherSign').textContent = appConfig.teacherName;
+      document.getElementById('printDatePlace').textContent = appConfig.dateDoc || 'Tasikmalaya, 28 September 2026';
+
+      document.getElementById('studentKkmInfo').innerHTML = '🎯 Standar KKM: <strong>' + appConfig.kkm + '</strong>';
+      document.getElementById('adminKkmBadge').innerHTML = '🎯 KKM Saat Ini: <strong>' + appConfig.kkm + '</strong>';
+      document.getElementById('taskKkmNote').textContent = 'KKM: ' + appConfig.kkm;
+
+      document.getElementById('btnBukaSheets').href = appConfig.googleSheetsUrl || 'https://docs.google.com/spreadsheets/u/0/';
+
+      if (currentStudent) {
+        tampilkanDataSiswa(currentStudent);
+      }
+    }
+
+    // 2. NAVIGASI TAB KELAS (MULTI-KELAS)
+    function renderClassTabs() {
+      const nav = document.getElementById('classesNavBar');
+      if (!nav) return;
+      nav.innerHTML = '';
+
+      const classes = appConfig.classes || DEFAULT_CLASSES;
+
+      // Tab Semua Kelas
+      const allBtn = document.createElement('button');
+      allBtn.type = 'button';
+      allBtn.className = 'class-tab-pill' + (selectedClassTab === 'all' ? ' active' : '');
+      allBtn.innerHTML = 'Semua Kelas <small>(' + studentsList.length + ')</small>';
+      allBtn.onclick = () => pilihTabKelas('all');
+      nav.appendChild(allBtn);
+
+      // Tab masing-masing kelas
+      classes.forEach(cls => {
+        const count = studentsList.filter(s => s.class === cls).length;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'class-tab-pill' + (selectedClassTab === cls ? ' active' : '');
+        btn.innerHTML = cls + ' <small>(' + count + ')</small>';
+        btn.onclick = () => pilihTabKelas(cls);
+        nav.appendChild(btn);
+      });
+
+      // Tombol Tambah Kelas Baru
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'btn-add-class';
+      addBtn.innerHTML = '➕ Tambah Kelas';
+      addBtn.onclick = bukaModalTambahKelas;
+      nav.appendChild(addBtn);
+    }
+
+    function pilihTabKelas(cls) {
+      selectedClassTab = cls;
+      renderClassTabs();
+      renderAdminTable();
+      const label = cls === 'all' ? 'Semua Kelas' : 'Kelas ' + cls;
+      document.getElementById('recapTableTitle').textContent = 'Rekapitulasi Nilai Siswa (' + label + ')';
+    }
+
+    // 3. LOGIKA SWITCH ROLE LOGIN (MURID | GURU)
+    function switchLoginRole(role) {
+      currentRole = role;
+      sembunyikanErrorLogin();
+      
+      const btnMurid = document.getElementById('btnRoleMurid');
+      const btnGuru = document.getElementById('btnRoleGuru');
+      const formMurid = document.getElementById('formMurid');
+      const formGuru = document.getElementById('formGuru');
+
+      if (role === 'murid') {
+        btnMurid.classList.add('active');
+        btnGuru.classList.remove('active');
+        formMurid.style.display = 'block';
+        formGuru.style.display = 'none';
+        document.getElementById('inputNISN').focus();
+      } else {
+        btnGuru.classList.add('active');
+        btnMurid.classList.remove('active');
+        formGuru.style.display = 'block';
+        formMurid.style.display = 'none';
+        document.getElementById('inputPasswordGuru').focus();
+      }
+    }
+
+    // 4. LOGIN MURID (CEK NILAI)
+    function handleCekNilaiMurid(e) {
+      e.preventDefault();
+      sembunyikanErrorLogin();
+      
+      const query = document.getElementById('inputNISN').value.trim().toLowerCase();
+      if (!query) return;
+
+      const btn = document.getElementById('btnSubmitMurid');
+      const txt = document.getElementById('btnTextMurid');
+      const sp = document.getElementById('spinnerMurid');
+
+      btn.disabled = true;
+      txt.style.display = 'none';
+      sp.style.display = 'inline-block';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        txt.style.display = 'inline';
+        sp.style.display = 'none';
+
+        // Cari siswa berdasarkan NISN persis, NIS belakang, atau nama siswa
+        const student = studentsList.find(s => 
+          s.nisn.toLowerCase() === query || 
+          s.nisn.replace(/[^0-9]/g, '').endsWith(query.replace(/[^0-9]/g, '')) || 
+          s.name.toLowerCase().includes(query)
+        );
+
+        if (student) {
+          currentStudent = student;
+          bukaDashboardSiswa(student);
+        } else {
+          tampilkanErrorLogin('NISN atau Nama tidak ditemukan dalam data siswa. Pastikan ejaan benar atau gunakan tombol bantuan!');
+        }
+      }, 350);
+    }
+
+    // 5. LOGIN GURU (MASUK PANEL ADMIN)
+    function handleLoginGuru(e) {
+      e.preventDefault();
+      sembunyikanErrorLogin();
+
+      const pwd = document.getElementById('inputPasswordGuru').value;
+      const btn = document.getElementById('btnSubmitGuru');
+      const txt = document.getElementById('btnTextGuru');
+      const sp = document.getElementById('spinnerGuru');
+
+      btn.disabled = true;
+      txt.style.display = 'none';
+      sp.style.display = 'inline-block';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        txt.style.display = 'inline';
+        sp.style.display = 'none';
+
+        if (pwd === appConfig.passwordGuru) {
+          bukaDashboardGuru();
+          showToast('Selamat datang, ' + appConfig.teacherName + '!');
+        } else {
+          tampilkanErrorLogin('Password guru salah! Silakan coba lagi.');
+        }
+      }, 350);
+    }
+
+    function tampilkanErrorLogin(msg) {
+      const err = document.getElementById('loginError');
+      err.textContent = msg;
+      err.style.display = 'block';
+    }
+
+    function sembunyikanErrorLogin() {
+      const err = document.getElementById('loginError');
+      err.textContent = '';
+      err.style.display = 'none';
+    }
+
+    function kembaliKeLogin() {
+      document.getElementById('dashboardView').style.display = 'none';
+      document.getElementById('adminDashboardView').style.display = 'none';
+      document.getElementById('loginView').style.display = 'flex';
+      sembunyikanErrorLogin();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 6. DASHBOARD SISWA
+    function bukaDashboardSiswa(student) {
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('adminDashboardView').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'block';
+      tampilkanDataSiswa(student);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function tampilkanDataSiswa(student) {
+      document.getElementById('studentName').textContent = student.name;
+      document.getElementById('studentSubjectName').textContent = appConfig.subjectName + ' • Kelas ' + (student.class || 'VIII');
+      document.getElementById('studentNISN').textContent = 'NISN: ' + student.nisn;
+      document.getElementById('studentKelas').textContent = 'Kelas: ' + (student.class || 'VIII');
+
+      const kkm = Number(appConfig.kkm) || 75;
+      const maxAtt = Number(appConfig.maxAttendance) || 16;
+      const attVal = Math.min(student.attendance, maxAtt);
+      const attScore = (attVal / maxAtt) * 100;
+
+      // Kehadiran
+      document.getElementById('valKehadiran').textContent = attVal;
+      document.getElementById('subKehadiran').textContent = 'Dari ' + maxAtt + ' Pertemuan (' + Math.round(attScore) + '%)';
+
+      // Rata-rata Tugas
+      const validTasks = student.tasks.filter(t => t !== null && t !== undefined && t !== '');
+      const avgTasks = validTasks.length > 0 
+        ? (validTasks.reduce((a, b) => a + Number(b), 0) / validTasks.length)
+        : 0;
+
+      document.getElementById('valRataTugas').textContent = validTasks.length > 0 ? Math.round(avgTasks) : '-';
+      document.getElementById('subRataTugas').textContent = 'Bobot 30% (' + validTasks.length + ' dari ' + DEFAULT_TASKS_INFO.length + ' selesai)';
+
+      // ASTS
+      const hasAsts = student.asts !== null && student.asts !== undefined && student.asts !== '';
+      document.getElementById('valASTS').textContent = hasAsts ? student.asts : '-';
+      document.getElementById('subASTS').textContent = 'Bobot 20%' + (hasAsts ? (student.asts >= kkm ? ' • Tuntas' : ' • Di Bawah KKM') : ' • Belum Diisi');
+
+      // ASAS / ASAJ
+      const hasAsas = student.asaj !== null && student.asaj !== undefined && student.asaj !== '';
+      document.getElementById('valASAS').textContent = hasAsas ? student.asaj : '-';
+      document.getElementById('subASAS').textContent = 'Bobot 40%' + (hasAsas ? (student.asaj >= kkm ? ' • Tuntas' : ' • Di Bawah KKM') : ' • Belum Diisi');
+
+      // Nilai Sementara Proporsional
+      let weightedSum = attScore * 0.10;
+      let totalWeight = 0.10;
+
+      if (validTasks.length > 0) {
+        weightedSum += avgTasks * 0.30;
+        totalWeight += 0.30;
+      }
+      if (hasAsts) {
+        weightedSum += Number(student.asts) * 0.20;
+        totalWeight += 0.20;
+      }
+      if (hasAsas) {
+        weightedSum += Number(student.asaj) * 0.40;
+        totalWeight += 0.40;
+      }
+
+      const nilaiSementara = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+      const cardSementara = document.getElementById('cardNilaiSementara');
+      document.getElementById('valNilaiSementara').textContent = nilaiSementara;
+
+      if (nilaiSementara < kkm) {
+        cardSementara.classList.add('under-kkm');
+        document.getElementById('subNilaiSementara').textContent = 'Perhatian: Nilai saat ini (' + nilaiSementara + ') masih di bawah KKM (' + kkm + ')';
+      } else {
+        cardSementara.classList.remove('under-kkm');
+        document.getElementById('subNilaiSementara').textContent = 'Dihitung proporsional dari komponen yang sudah dinilai (Tuntas KKM)';
+      }
+
+      // Evaluasi Tugas
+      const missingTasks = [];
+      const taskContainer = document.getElementById('taskListContainer');
+      taskContainer.innerHTML = '';
+
+      DEFAULT_TASKS_INFO.forEach((tDef, idx) => {
+        const score = student.tasks[idx];
+        const isMissing = (score === null || score === undefined || score === '');
+        
+        let itemClass = '';
+        let badgeHtml = '';
+        let scoreHtml = '';
+
+        if (isMissing) {
+          missingTasks.push(tDef.title);
+          itemClass = 'task-empty';
+          badgeHtml = '<span class="badge-status badge-empty">Belum Mengumpulkan</span>';
+          scoreHtml = '<span class="task-score-text score-empty">-</span>';
+        } else if (Number(score) < kkm) {
+          itemClass = 'task-under-kkm';
+          badgeHtml = '<span class="badge-status badge-under-kkm">Di Bawah KKM (Remedial)</span>';
+          scoreHtml = '<span class="task-score-text score-under-kkm">' + score + '</span>';
+        } else {
+          itemClass = 'task-passed';
+          badgeHtml = '<span class="badge-status badge-done">Tuntas</span>';
+          scoreHtml = '<span class="task-score-text score-passed">' + score + '</span>';
+        }
+
+        const taskEl = document.createElement('div');
+        taskEl.className = 'task-item ' + itemClass;
+        taskEl.innerHTML = 
+          '<div>' +
+            '<div>' + badgeHtml + '</div>' +
+            '<div class="task-title">' + tDef.title + '</div>' +
+            '<div class="task-desc">' + tDef.desc + '</div>' +
+          '</div>' +
+          '<div>' + scoreHtml + '</div>';
+        taskContainer.appendChild(taskEl);
+      });
+
+      const missingBox = document.getElementById('missingTasksAlert');
+      const missingList = document.getElementById('missingTasksList');
+      if (missingTasks.length > 0) {
+        missingBox.style.display = 'block';
+        missingList.innerHTML = missingTasks.map(t => '<li>' + t + '</li>').join('');
+      } else {
+        missingBox.style.display = 'none';
+      }
+    }
+
+    // 7. DASHBOARD GURU / ADMIN MULTI-KELAS
+    function bukaDashboardGuru() {
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'none';
+      document.getElementById('adminDashboardView').style.display = 'block';
+      renderClassTabs();
+      renderAdminTable();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function calculateStudentFinalScore(student) {
+      if (student.manualFinalScore !== undefined && student.manualFinalScore !== null && student.manualFinalScore !== '') {
+        return Number(student.manualFinalScore);
+      }
+
+      const maxAtt = Number(appConfig.maxAttendance) || 16;
+      const attVal = Math.min(student.attendance, maxAtt);
+      const attScore = (attVal / maxAtt) * 100;
+
+      const validTasks = student.tasks.filter(t => t !== null && t !== undefined && t !== '');
+      const avgTasks = validTasks.length > 0 ? (validTasks.reduce((a, b) => a + Number(b), 0) / validTasks.length) : 0;
+
+      const hasAsts = student.asts !== null && student.asts !== undefined && student.asts !== '';
+      const hasAsas = student.asaj !== null && student.asaj !== undefined && student.asaj !== '';
+
+      let weightedSum = attScore * 0.10;
+      let totalWeight = 0.10;
+
+      if (validTasks.length > 0) {
+        weightedSum += avgTasks * 0.30;
+        totalWeight += 0.30;
+      }
+      if (hasAsts) {
+        weightedSum += Number(student.asts) * 0.20;
+        totalWeight += 0.20;
+      }
+      if (hasAsas) {
+        weightedSum += Number(student.asaj) * 0.40;
+        totalWeight += 0.40;
+      }
+
+      return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('adminTableBody');
+      const tfoot = document.getElementById('adminTableFoot');
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+
+      const kkm = Number(appConfig.kkm) || 75;
+      const query = (document.getElementById('searchStudentInput')?.value || '').toLowerCase().trim();
+
+      // 1. Filter berdasarkan Kelas yang dipilih di tab
+      let listForView = studentsList;
+      if (selectedClassTab !== 'all') {
+        listForView = listForView.filter(s => s.class === selectedClassTab);
+      }
+
+      // 2. Filter pencarian & status
+      let filtered = listForView.filter(s => {
+        const matchSearch = s.name.toLowerCase().includes(query) || s.nisn.toLowerCase().includes(query);
+        if (!matchSearch) return false;
+
+        const missingCount = s.tasks.filter(t => t === null || t === undefined || t === '').length;
+        const finalScore = calculateStudentFinalScore(s);
+
+        if (activeFilter === 'missing') return missingCount > 0;
+        if (activeFilter === 'under-kkm') return finalScore < kkm;
+        if (activeFilter === 'passed') return finalScore >= kkm;
+        return true;
+      });
+
+      // Statistik untuk tampilan saat ini
+      let totalClassScore = 0;
+      let totalMissingTasks = 0;
+      let passedCount = 0;
+      let remedialCount = 0;
+
+      let totalAsts = 0;
+      let astsCount = 0;
+      let totalAsaj = 0;
+      let asajCount = 0;
+      let maxScore = -1;
+      let minScore = 999;
+
+      listForView.forEach(s => {
+        const finalScore = calculateStudentFinalScore(s);
+        totalClassScore += finalScore;
+        if (finalScore > maxScore) maxScore = finalScore;
+        if (finalScore < minScore) minScore = finalScore;
+
+        if (finalScore >= kkm) passedCount++; else remedialCount++;
+
+        const missing = s.tasks.filter(t => t === null || t === undefined || t === '').length;
+        totalMissingTasks += missing;
+
+        if (s.asts !== null && s.asts !== undefined && s.asts !== '') {
+          totalAsts += Number(s.asts);
+          astsCount++;
+        }
+        if (s.asaj !== null && s.asaj !== undefined && s.asaj !== '') {
+          totalAsaj += Number(s.asaj);
+          asajCount++;
+        }
+      });
+
+      const avgClass = listForView.length > 0 ? (totalClassScore / listForView.length).toFixed(1) : 0;
+      document.getElementById('statTotalSiswa').textContent = listForView.length;
+      document.getElementById('statRataKelas').textContent = avgClass;
+      document.getElementById('statTugasKosong').textContent = totalMissingTasks;
+      document.getElementById('statTuntasRemedial').textContent = passedCount + ' / ' + remedialCount;
+
+      // Render Baris
+      filtered.forEach((student, index) => {
+        const missingCount = student.tasks.filter(t => t === null || t === undefined || t === '').length;
+        const validTasks = student.tasks.filter(t => t !== null && t !== undefined && t !== '');
+        const avgTasks = validTasks.length > 0 ? Math.round(validTasks.reduce((a, b) => a + Number(b), 0) / validTasks.length) : '-';
+        const finalScore = calculateStudentFinalScore(student);
+
+        let missingBadge = missingCount === 0 
+          ? '<span class="score-badge-table passed">Lengkap (0)</span>'
+          : '<span class="score-badge-table empty">' + missingCount + ' Tugas</span>';
+
+        let astsBadge = (student.asts === null || student.asts === undefined || student.asts === '')
+          ? '<span class="score-badge-table empty">-</span>'
+          : '<span class="score-badge-table ' + (Number(student.asts) < kkm ? 'under-kkm' : 'passed') + '">' + student.asts + '</span>';
+
+        let asajBadge = (student.asaj === null || student.asaj === undefined || student.asaj === '')
+          ? '<span class="score-badge-table empty">-</span>'
+          : '<span class="score-badge-table ' + (Number(student.asaj) < kkm ? 'under-kkm' : 'passed') + '">' + student.asaj + '</span>';
+
+        let finalBadge = '<span class="score-badge-table ' + (finalScore < kkm ? 'under-kkm' : 'passed') + '" style="font-size: 0.95rem;">' + finalScore + '</span>';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = 
+          '<td>' + (index + 1) + '</td>' +
+          '<td><code>' + student.nisn + '</code></td>' +
+          '<td><span class="badge-kelas">' + (student.class || 'VIII') + '</span></td>' +
+          '<td style="font-weight: 700;">' + student.name + '</td>' +
+          '<td>' + student.attendance + '/' + appConfig.maxAttendance + '</td>' +
+          '<td>' + missingBadge + '</td>' +
+          '<td><strong>' + avgTasks + '</strong></td>' +
+          '<td>' + astsBadge + '</td>' +
+          '<td>' + asajBadge + '</td>' +
+          '<td>' + finalBadge + '</td>' +
+          '<td>' +
+            '<div style="display: flex; gap: 6px;">' +
+              '<button type="button" class="btn btn-outline btn-sm" onclick="bukaModalEdit(\'' + student.nisn + '\')">✏️ Edit</button>' +
+              '<button type="button" class="btn btn-outline btn-sm" onclick="bukaDashboardSiswaByNisn(\'' + student.nisn + '\')">👁️ Siswa</button>' +
+            '</div>' +
+          '</td>';
+        tbody.appendChild(tr);
+      });
+
+      // TFOOT SUMMARY
+      const footJumlah = document.createElement('tr');
+      footJumlah.innerHTML = 
+        '<td colspan="4" style="text-align: right; padding-right: 20px;">JUMLAH</td>' +
+        '<td>-</td>' +
+        '<td>-</td>' +
+        '<td>-</td>' +
+        '<td>' + totalAsts + '</td>' +
+        '<td>' + totalAsaj + '</td>' +
+        '<td>' + totalClassScore + '</td>' +
+        '<td>-</td>';
+
+      const footRata = document.createElement('tr');
+      footRata.innerHTML = 
+        '<td colspan="4" style="text-align: right; padding-right: 20px;">RATA-RATA</td>' +
+        '<td>-</td>' +
+        '<td>-</td>' +
+        '<td>-</td>' +
+        '<td>' + (astsCount > 0 ? (totalAsts / astsCount).toFixed(1) : '-') + '</td>' +
+        '<td>' + (asajCount > 0 ? (totalAsaj / asajCount).toFixed(1) : '-') + '</td>' +
+        '<td><strong>' + avgClass + '</strong></td>' +
+        '<td>-</td>';
+
+      const footMax = document.createElement('tr');
+      footMax.innerHTML = 
+        '<td colspan="4" style="text-align: right; padding-right: 20px;">NILAI TERTINGGI</td>' +
+        '<td colspan="5">-</td>' +
+        '<td><span class="score-badge-table passed">' + (maxScore >= 0 ? maxScore : '-') + '</span></td>' +
+        '<td>-</td>';
+
+      const footMin = document.createElement('tr');
+      footMin.innerHTML = 
+        '<td colspan="4" style="text-align: right; padding-right: 20px;">NILAI TERENDAH</td>' +
+        '<td colspan="5">-</td>' +
+        '<td><span class="score-badge-table ' + (minScore < kkm ? 'under-kkm' : 'passed') + '">' + (minScore <= 100 ? minScore : '-') + '</span></td>' +
+        '<td>-</td>';
+
+      tfoot.appendChild(footJumlah);
+      tfoot.appendChild(footRata);
+      tfoot.appendChild(footMax);
+      tfoot.appendChild(footMin);
+    }
+
+    function handleSearchStudents(val) {
+      renderAdminTable();
+    }
+
+    function setFilterCategory(cat) {
+      activeFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (cat === 'all') document.getElementById('filterAll').classList.add('active');
+      if (cat === 'missing') document.getElementById('filterMissing').classList.add('active');
+      if (cat === 'under-kkm') document.getElementById('filterUnderKkm').classList.add('active');
+      if (cat === 'passed') document.getElementById('filterPassed').classList.add('active');
+      renderAdminTable();
+    }
+
+    function bukaDashboardSiswaByNisn(nisn) {
+      const student = studentsList.find(s => s.nisn === nisn);
+      if (student) {
+        currentStudent = student;
+        bukaDashboardSiswa(student);
+      }
+    }
+
+    // 8. MODAL EDIT NILAI SISWA
+    function bukaModalEdit(nisn) {
+      const student = studentsList.find(s => s.nisn === nisn);
+      if (!student) return;
+
+      document.getElementById('modalEditTitle').textContent = 'Edit Nilai: ' + student.name;
+      document.getElementById('editNISN').value = student.nisn;
+      document.getElementById('editNamaSiswa').value = student.name;
+      document.getElementById('editKelas').value = student.class || '';
+      document.getElementById('editKehadiran').value = student.attendance;
+      document.getElementById('editASTS').value = student.asts !== null ? student.asts : '';
+      document.getElementById('editASAS').value = student.asaj !== null ? student.asaj : '';
+      document.getElementById('editNilaiAkhir').value = student.manualFinalScore !== undefined ? student.manualFinalScore : '';
+
+      const container = document.getElementById('containerInputTugas');
+      container.innerHTML = '';
+
+      DEFAULT_TASKS_INFO.forEach((tDef, idx) => {
+        const val = student.tasks[idx] !== null && student.tasks[idx] !== undefined ? student.tasks[idx] : '';
+        const div = document.createElement('div');
+        div.innerHTML = 
+          '<label class="form-label" style="font-size: 0.8rem; margin-bottom: 3px;">Tugas ' + (idx + 1) + '</label>' +
+          '<input type="number" class="form-input input-task-val" data-idx="' + idx + '" min="0" max="100" placeholder="Kosongkan jika belum" value="' + val + '">';
+        container.appendChild(div);
+      });
+
+      document.getElementById('modalEditNilai').style.display = 'flex';
+    }
+
+    function tutupModalEdit() {
+      document.getElementById('modalEditNilai').style.display = 'none';
+    }
+
+    function simpanNilaiDariModal(e) {
+      e.preventDefault();
+      const nisn = document.getElementById('editNISN').value;
+      const student = studentsList.find(s => s.nisn === nisn);
+      if (!student) return;
+
+      student.class = document.getElementById('editKelas').value.trim();
+      student.attendance = Number(document.getElementById('editKehadiran').value) || 0;
+
+      const astsVal = document.getElementById('editASTS').value.trim();
+      student.asts = astsVal !== '' ? Number(astsVal) : null;
+
+      const asasVal = document.getElementById('editASAS').value.trim();
+      student.asaj = asasVal !== '' ? Number(asasVal) : null;
+
+      const manualFinal = document.getElementById('editNilaiAkhir').value.trim();
+      student.manualFinalScore = manualFinal !== '' ? Number(manualFinal) : undefined;
+
+      const taskInputs = document.querySelectorAll('.input-task-val');
+      taskInputs.forEach(inp => {
+        const idx = Number(inp.getAttribute('data-idx'));
+        const val = inp.value.trim();
+        student.tasks[idx] = val !== '' ? Number(val) : null;
+      });
+
+      saveStudents(studentsList);
+      tutupModalEdit();
+      showToast('Nilai ' + student.name + ' berhasil diperbarui!');
+    }
+
+    function hapusSiswaAktif() {
+      const nisn = document.getElementById('editNISN').value;
+      const student = studentsList.find(s => s.nisn === nisn);
+      if (!student) return;
+
+      if (confirm('Yakin ingin menghapus siswa: ' + student.name + ' (' + student.nisn + ')?')) {
+        studentsList = studentsList.filter(s => s.nisn !== nisn);
+        saveStudents(studentsList);
+        syncDeleteStudentToCloud(currentEditNisn);
+        tutupModalEdit();
+        showToast('Siswa berhasil dihapus!');
+      }
+    }
+
+    // 9. MODAL TAMBAH SISWA BARU
+    function bukaModalTambahSiswa() {
+      document.getElementById('tambahNISN').value = '';
+      document.getElementById('tambahNama').value = '';
+      document.getElementById('tambahKelas').value = selectedClassTab !== 'all' ? selectedClassTab : (appConfig.classes[0] || 'VIII A');
+      document.getElementById('tambahKehadiran').value = appConfig.maxAttendance || 16;
+      document.getElementById('modalTambahSiswa').style.display = 'flex';
+      document.getElementById('tambahNISN').focus();
+    }
+
+    function tutupModalTambahSiswa() {
+      document.getElementById('modalTambahSiswa').style.display = 'none';
+    }
+
+    function handleTambahSiswa(e) {
+      e.preventDefault();
+      const nisn = document.getElementById('tambahNISN').value.trim();
+      const name = document.getElementById('tambahNama').value.trim();
+      const cls = document.getElementById('tambahKelas').value.trim();
+      const att = Number(document.getElementById('tambahKehadiran').value) || 0;
+
+      if (studentsList.some(s => s.nisn === nisn)) {
+        alert('NISN ' + nisn + ' sudah terdaftar! Gunakan NISN yang berbeda.');
+        return;
+      }
+
+      const newStudent = {
+        no: studentsList.length + 1,
+        nisn: nisn,
+        name: name,
+        class: cls,
+        attendance: att,
+        tasks: [null, null, null, null, null],
+        asts: null,
+        asaj: null
+      };
+
+      studentsList.push(newStudent);
+      saveStudents(studentsList);
+      tutupModalTambahSiswa();
+      showToast('Siswa ' + name + ' berhasil ditambahkan ke Kelas ' + cls + '!');
+    }
+
+    // 10. MODAL TAMBAH KELAS BARU
+    function bukaModalTambahKelas() {
+      document.getElementById('inputNamaKelasBaru').value = '';
+      document.getElementById('modalTambahKelas').style.display = 'flex';
+      document.getElementById('inputNamaKelasBaru').focus();
+    }
+
+    function tutupModalTambahKelas() {
+      document.getElementById('modalTambahKelas').style.display = 'none';
+    }
+
+    function handleTambahKelasBaru(e) {
+      e.preventDefault();
+      const newCls = document.getElementById('inputNamaKelasBaru').value.trim();
+      if (!newCls) return;
+
+      const classes = appConfig.classes || DEFAULT_CLASSES;
+      if (classes.includes(newCls)) {
+        alert('Kelas ' + newCls + ' sudah ada!');
+        return;
+      }
+
+      classes.push(newCls);
+      appConfig.classes = classes;
+      saveConfig(appConfig);
+      tutupModalTambahKelas();
+      pilihTabKelas(newCls);
+      showToast('Kelas ' + newCls + ' berhasil ditambahkan!');
+    }
+
+    // 11. MODAL PENGATURAN KELAS
+    function bukaModalPengaturan() {
+      document.getElementById('settingLogoPreview').src = appConfig.logoUrl || OFFICIAL_DEFAULT_LOGO;
+      document.getElementById('settingLogoUrl').value = appConfig.logoUrl && !appConfig.logoUrl.startsWith('data:') ? appConfig.logoUrl : '';
+      document.getElementById('settingSekolah').value = appConfig.schoolName;
+      document.getElementById('settingMapel').value = appConfig.subjectName;
+      document.getElementById('settingGuru').value = appConfig.teacherName;
+      document.getElementById('settingKKM').value = appConfig.kkm;
+      document.getElementById('settingMaxKehadiran').value = appConfig.maxAttendance;
+      document.getElementById('settingPasswordGuru').value = appConfig.passwordGuru;
+      document.getElementById('settingSheetsUrl').value = appConfig.googleSheetsUrl || '';
+
+      document.getElementById('modalPengaturan').style.display = 'flex';
+    }
+
+    function tutupModalPengaturan() {
+      document.getElementById('modalPengaturan').style.display = 'none';
+    }
+
+    function terapkanLogoResmiAlAzhar() {
+      document.getElementById('settingLogoPreview').src = OFFICIAL_DEFAULT_LOGO;
+      document.getElementById('settingLogoUrl').value = '';
+      showToast('Logo resmi Al Azhar 30 dipasang!');
+    }
+
+    function handleLogoFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        document.getElementById('settingLogoPreview').src = evt.target.result;
+        showToast('Foto logo baru siap disimpan!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function simpanPengaturanDariModal(e) {
+      e.preventDefault();
+      
+      const newConfig = {
+        ...appConfig,
+        logoUrl: document.getElementById('settingLogoPreview').src || OFFICIAL_DEFAULT_LOGO,
+        schoolName: document.getElementById('settingSekolah').value.trim(),
+        subjectName: document.getElementById('settingMapel').value.trim(),
+        teacherName: document.getElementById('settingGuru').value.trim(),
+        kkm: Number(document.getElementById('settingKKM').value) || 75,
+        maxAttendance: Number(document.getElementById('settingMaxKehadiran').value) || 16,
+        passwordGuru: document.getElementById('settingPasswordGuru').value.trim(),
+        googleSheetsUrl: document.getElementById('settingSheetsUrl').value.trim()
+      };
+
+      saveConfig(newConfig);
+      tutupModalPengaturan();
+      showToast('Pengaturan berhasil disimpan!');
+    }
+
+    // 12. MODAL QUICK HELPER DAFTAR SISWA (DENGAN TAB KELAS)
+    function bukaModalHelperSiswa() {
+      renderHelperClassTabs();
+      renderHelperChips();
+      document.getElementById('modalHelperSiswa').style.display = 'flex';
+    }
+
+    function tutupModalHelperSiswa() {
+      document.getElementById('modalHelperSiswa').style.display = 'none';
+    }
+
+    function renderHelperClassTabs() {
+      const container = document.getElementById('helperClassTabs');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const classes = ['all', ...(appConfig.classes || DEFAULT_CLASSES)];
+      classes.forEach(cls => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'filter-btn' + (helperSelectedClass === cls ? ' active' : '');
+        btn.textContent = cls === 'all' ? 'Semua Kelas' : 'Kelas ' + cls;
+        btn.onclick = () => {
+          helperSelectedClass = cls;
+          renderHelperClassTabs();
+          renderHelperChips();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderHelperChips() {
+      const container = document.getElementById('helperStudentChips');
+      if (!container) return;
+      container.innerHTML = '';
+
+      let list = studentsList;
+      if (helperSelectedClass !== 'all') {
+        list = list.filter(s => s.class === helperSelectedClass);
+      }
+
+      list.forEach((s, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'student-quick-chip';
+        chip.innerHTML = '<strong>' + s.class + ' #' + (idx + 1) + '</strong> ' + s.name + ' <small>(' + s.nisn + ')</small>';
+        chip.onclick = function() {
+          document.getElementById('inputNISN').value = s.nisn;
+          tutupModalHelperSiswa();
+          document.getElementById('formMurid').dispatchEvent(new Event('submit', { cancelable: true }));
+        };
+        container.appendChild(chip);
+      });
+    }
+
+    // 13. SPREADSHEET DATABASE INTEGRATION (PERSIS GAMBAR KEDUA + KELAS)
+    // Kolom Header: NISN | Nama | Kelas | Kehadiran | Tugas_1 | Tugas_2 | Tugas_3 | Tugas_4 | Tugas_5 | ASTS | ASAS | NilaiAkhir
+    function salinHeaderSpreadsheet() {
+      const header = 'NISN\tNama\tKelas\tKehadiran\tTugas_1\tTugas_2\tTugas_3\tTugas_4\tTugas_5\tASTS\tASAS\tNilaiAkhir';
+      navigator.clipboard.writeText(header).then(() => {
+        showToast('Header DataNilai berhasil disalin ke Clipboard!');
+      }).catch(() => {
+        showToast('Silakan salin manual: NISN, Nama, Kelas, Kehadiran, Tugas_1, Tugas_2, Tugas_3, Tugas_4, Tugas_5, ASTS, ASAS, NilaiAkhir');
+      });
+    }
+
+    function eksporDataCSV() {
+      let csv = 'NISN,Nama,Kelas,Kehadiran,Tugas_1,Tugas_2,Tugas_3,Tugas_4,Tugas_5,ASTS,ASAS,NilaiAkhir\r\n';
+      
+      let list = studentsList;
+      if (selectedClassTab !== 'all') {
+        list = list.filter(s => s.class === selectedClassTab);
+      }
+
+      list.forEach(s => {
+        const t1 = s.tasks[0] !== null && s.tasks[0] !== undefined ? s.tasks[0] : '';
+        const t2 = s.tasks[1] !== null && s.tasks[1] !== undefined ? s.tasks[1] : '';
+        const t3 = s.tasks[2] !== null && s.tasks[2] !== undefined ? s.tasks[2] : '';
+        const t4 = s.tasks[3] !== null && s.tasks[3] !== undefined ? s.tasks[3] : '';
+        const t5 = s.tasks[4] !== null && s.tasks[4] !== undefined ? s.tasks[4] : '';
+        const asts = s.asts !== null && s.asts !== undefined ? s.asts : '';
+        const asas = s.asaj !== null && s.asaj !== undefined ? s.asaj : '';
+        const finalScore = calculateStudentFinalScore(s);
+
+        csv += [
+          '"' + s.nisn + '"',
+          '"' + s.name + '"',
+          '"' + (s.class || '') + '"',
+          s.attendance,
+          t1, t2, t3, t4, t5,
+          asts, asas,
+          finalScore
+        ].join(',') + '\r\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', 'DataNilai_' + (selectedClassTab === 'all' ? 'Semua_Kelas' : selectedClassTab) + '.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Spreadsheet DataNilai CSV berhasil diunduh!');
+    }
+
+    function bukaModalImporSpreadsheet() {
+      document.getElementById('inputPasteData').value = '';
+      document.getElementById('modalImporSpreadsheet').style.display = 'flex';
+      document.getElementById('inputPasteData').focus();
+    }
+
+    function tutupModalImporSpreadsheet() {
+      document.getElementById('modalImporSpreadsheet').style.display = 'none';
+    }
+
+    function handleProsesImporData(e) {
+      e.preventDefault();
+      const rawText = document.getElementById('inputPasteData').value.trim();
+      if (!rawText) return;
+
+      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let importedCount = 0;
+
+      lines.forEach(line => {
+        // Abaikan baris header jika ikut tercopy
+        if (line.toLowerCase().startsWith('nisn') || line.toLowerCase().includes('kehadiran')) {
+          return;
+        }
+
+        // Cek pemisah Tab atau Koma
+        const delimiter = line.includes('\t') ? '\t' : ',';
+        const parts = line.split(delimiter).map(p => p.trim().replace(/^["']|["']$/g, ''));
+
+        if (parts.length >= 2) {
+          const nisn = parts[0];
+          const name = parts[1];
+          const cls = parts[2] || (selectedClassTab !== 'all' ? selectedClassTab : 'VIII A');
+          const att = Number(parts[3]) || appConfig.maxAttendance || 16;
+          
+          const t1 = parts[4] !== undefined && parts[4] !== '' ? Number(parts[4]) : null;
+          const t2 = parts[5] !== undefined && parts[5] !== '' ? Number(parts[5]) : null;
+          const t3 = parts[6] !== undefined && parts[6] !== '' ? Number(parts[6]) : null;
+          const t4 = parts[7] !== undefined && parts[7] !== '' ? Number(parts[7]) : null;
+          const t5 = parts[8] !== undefined && parts[8] !== '' ? Number(parts[8]) : null;
+
+          const asts = parts[9] !== undefined && parts[9] !== '' ? Number(parts[9]) : null;
+          const asas = parts[10] !== undefined && parts[10] !== '' ? Number(parts[10]) : null;
+          const manualScore = parts[11] !== undefined && parts[11] !== '' ? Number(parts[11]) : undefined;
+
+          // Cek apakah siswa sudah ada (update) atau baru (tambah)
+          const existing = studentsList.find(s => s.nisn === nisn);
+          if (existing) {
+            existing.name = name;
+            existing.class = cls;
+            existing.attendance = att;
+            existing.tasks = [t1, t2, t3, t4, t5];
+            existing.asts = asts;
+            existing.asaj = asas;
+            if (manualScore !== undefined) existing.manualFinalScore = manualScore;
+          } else {
+            studentsList.push({
+              no: studentsList.length + 1,
+              nisn: nisn,
+              name: name,
+              class: cls,
+              attendance: att,
+              tasks: [t1, t2, t3, t4, t5],
+              asts: asts,
+              asaj: asas,
+              manualFinalScore: manualScore
+            });
+          }
+          importedCount++;
+        }
+      });
+
+      if (importedCount > 0) {
+        saveStudents(studentsList);
+        tutupModalImporSpreadsheet();
+        showToast('Berhasil mengimpor/memperbarui ' + importedCount + ' data siswa!');
+      } else {
+        alert('Tidak ada baris data valid yang terdeteksi. Pastikan format kolom sesuai petunjuk!');
+      }
+    }
+
+    // 14. CETAK FORMAT RESMI (SESUAI GAMBAR ANALISIS PENILAIAN ASTS 1)
+    function cetakFormatResmi() {
+      const tbody = document.getElementById('printTableBody');
+      const tfoot = document.getElementById('printTableFoot');
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+
+      let list = studentsList;
+      if (selectedClassTab !== 'all') {
+        list = list.filter(s => s.class === selectedClassTab);
+      }
+
+      document.getElementById('printClass').textContent = selectedClassTab === 'all' ? 'Semua Kelas' : selectedClassTab;
+
+      let totalKehadiran = 0;
+      let totalTugas = 0;
+      let totalAsts = 0;
+      let totalAsaj = 0;
+      let totalAkhir = 0;
+
+      let countTugas = 0;
+      let countAsts = 0;
+      let countAsaj = 0;
+
+      let maxAkhir = -1;
+      let minAkhir = 999;
+
+      list.forEach((s, idx) => {
+        const finalScore = calculateStudentFinalScore(s);
+        const validTasks = s.tasks.filter(t => t !== null && t !== undefined && t !== '');
+        const avgTask = validTasks.length > 0 ? Math.round(validTasks.reduce((a, b) => a + Number(b), 0) / validTasks.length) : '-';
+
+        totalKehadiran += Number(s.attendance) || 0;
+        if (avgTask !== '-') {
+          totalTugas += avgTask;
+          countTugas++;
+        }
+        if (s.asts !== null && s.asts !== undefined && s.asts !== '') {
+          totalAsts += Number(s.asts);
+          countAsts++;
+        }
+        if (s.asaj !== null && s.asaj !== undefined && s.asaj !== '') {
+          totalAsaj += Number(s.asaj);
+          countAsaj++;
+        }
+        totalAkhir += finalScore;
+
+        if (finalScore > maxAkhir) maxAkhir = finalScore;
+        if (finalScore < minAkhir) minAkhir = finalScore;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = 
+          '<td>' + (idx + 1) + '</td>' +
+          '<td class="text-left">' + s.name + ' (' + s.class + ')</td>' +
+          '<td>' + s.attendance + '</td>' +
+          '<td>' + avgTask + '</td>' +
+          '<td>' + (s.asts !== null ? s.asts : '') + '</td>' +
+          '<td>' + (s.asaj !== null ? s.asaj : '') + '</td>' +
+          '<td>' + finalScore + '</td>';
+        tbody.appendChild(tr);
+      });
+
+      const n = list.length;
+      tfoot.innerHTML = 
+        '<tr>' +
+          '<td colspan="2">JUMLAH</td>' +
+          '<td>' + totalKehadiran + '</td>' +
+          '<td>' + totalTugas + '</td>' +
+          '<td>' + totalAsts + '</td>' +
+          '<td>' + totalAsaj + '</td>' +
+          '<td>' + totalAkhir + '</td>' +
+        '</tr>' +
+        '<tr>' +
+          '<td colspan="2">RATA-RATA</td>' +
+          '<td>' + (n > 0 ? (totalKehadiran / n).toFixed(1) : 0) + '</td>' +
+          '<td>' + (countTugas > 0 ? (totalTugas / countTugas).toFixed(1) : '-') + '</td>' +
+          '<td>' + (countAsts > 0 ? (totalAsts / countAsts).toFixed(1) : '-') + '</td>' +
+          '<td>' + (countAsaj > 0 ? (totalAsaj / countAsaj).toFixed(1) : '-') + '</td>' +
+          '<td>' + (n > 0 ? (totalAkhir / n).toFixed(1) : 0) + '</td>' +
+        '</tr>' +
+        '<tr>' +
+          '<td colspan="2">NILAI TERTINGGI</td>' +
+          '<td colspan="4">-</td>' +
+          '<td>' + (maxAkhir >= 0 ? maxAkhir : '-') + '</td>' +
+        '</tr>' +
+        '<tr>' +
+          '<td colspan="2">NILAI TERENDAH</td>' +
+          '<td colspan="4">-</td>' +
+          '<td>' + (minAkhir <= 100 ? minAkhir : '-') + '</td>' +
+        '</tr>';
+
+      window.print();
+    }
+
+    // 15. RESET DATA
+    function konfirmasiResetData() {
+      if (confirm('Apakah Anda yakin ingin mengembalikan seluruh data siswa (Kelas VIII A dan VIII B) dan pengaturan ke setelan awal?')) {
+        localStorage.removeItem('nilaiku_students_data');
+        localStorage.removeItem('nilaiku_app_config');
+        appConfig = DEFAULT_CONFIG;
+        studentsList = DEFAULT_STUDENTS;
+        selectedClassTab = 'all';
+        applyConfigToUI();
+        renderClassTabs();
+        renderAdminTable();
+        showToast('Data berhasil direset ke setelan awal!');
+      }
+    }
+
+    
+    // ========================================================
+    // PWA (PROGRESSIVE WEB APP) SERVICE WORKER & INSTALL LOGIC
+    // ========================================================
+    let deferredPrompt;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(() => {
+          console.log('NILAIKU Service Worker aktif!');
+        }).catch(err => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'flex';
+    });
+
+    function pasangPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast('🎉 Aplikasi NILAIKU berhasil dipasang!');
+          }
+          deferredPrompt = null;
+          tutupPWABanner();
+        });
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          alert('Untuk memasang di iPhone/iPad:\n1. Ketuk tombol Bagikan (ikon kotak panah ke atas 📤) di bilah bawah Safari\n2. Gulir ke bawah dan pilih "Tambah ke Layar Utama" (Add to Home Screen)');
+        } else {
+          alert('Untuk memasang di HP:\nKetuk menu titik tiga (⋮) di pojok browser Anda, lalu pilih "Tambahkan ke Layar Utama" / "Instal Aplikasi".');
+        }
+      }
+    }
+
+    function tutupPWABanner() {
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'none';
+    }
+
+    // 16. TOAST HELPER
+    function showToast(msg) {
+      const toast = document.getElementById('toastPopup');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
