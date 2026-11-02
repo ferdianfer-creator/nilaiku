@@ -1553,11 +1553,7 @@
               <span id="btnTextMurid">CEK NILAI</span>
               <div id="spinnerMurid" class="spinner"></div>
             </button>
-            <div class="quick-helper-wrap">
-              <button type="button" class="btn-helper-link" onclick="bukaModalHelperSiswa()">
-                🔍 Lihat Daftar Siswa & NISN (Multi-Kelas)
-              </button>
-            </div>
+            
           </form>
 
           <!-- FORM LOGIN GURU -->
@@ -5136,6 +5132,48 @@
     let helperSelectedClass = 'all';
 
     // INISIALISASI SAAT DOKUMEN SIAP
+    
+    // ========================================================
+    // PERSISTENSI POSISI VIEW SAAT REFRESH BROWSER (F5)
+    // ========================================================
+    function restoreActiveViewOnLoad() {
+      try {
+        const activeView = sessionStorage.getItem('nilaiku_active_view');
+
+        if (activeView === 'guru') {
+          const savedSub = sessionStorage.getItem('nilaiku_active_subject');
+          if (savedSub) {
+            selectedSubject = savedSub;
+            appConfig.activeSubject = savedSub;
+            appConfig.subjectName = savedSub;
+          }
+          const savedClass = sessionStorage.getItem('nilaiku_active_class');
+          if (savedClass) {
+            selectedClassTab = savedClass;
+          }
+          bukaDashboardGuru();
+          return;
+        }
+
+        if (activeView === 'student') {
+          const savedNisn = sessionStorage.getItem('nilaiku_student_nisn');
+          const savedSub = sessionStorage.getItem('nilaiku_student_subject') || selectedSubject || 'Informatika';
+          if (savedNisn) {
+            const student = studentsList.find(s => s.nisn.toLowerCase() === savedNisn.toLowerCase());
+            if (student) {
+              document.getElementById('loginView').style.display = 'none';
+              document.getElementById('adminDashboardView').style.display = 'none';
+              document.getElementById('dashboardView').style.display = 'block';
+              bukaNilaiSiswaPerMapel(savedNisn, savedSub);
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Gagal memulihkan state sesi:', err);
+      }
+    }
+    
     document.addEventListener('DOMContentLoaded', () => {
       applyConfigToUI();
       renderClassTabs();
@@ -5143,6 +5181,8 @@
       renderAdminTable();
       renderHelperChips();
       populateClassDatalist();
+      // Pulihkan tampilan aktif saat refresh
+      restoreActiveViewOnLoad();
       // Auto-connect cloud Supabase
       setTimeout(() => {
         checkSupabaseConnection(true);
@@ -5615,6 +5655,7 @@
         btn.innerHTML = (sub.icon || '📚') + ' <span>' + sub.name + '</span> <span class="sub-teacher">' + sub.teacher + '</span>';
         btn.onclick = () => {
           selectedSubject = sub.name;
+          sessionStorage.setItem('nilaiku_active_subject', sub.name);
           appConfig.activeSubject = sub.name;
           appConfig.subjectName = sub.name;
           updateAdminSubjectUI();
@@ -5649,6 +5690,9 @@
 
     function bukaNilaiSiswaPerMapel(nisn, subName) {
       currentStudentNisn = nisn;
+      sessionStorage.setItem('nilaiku_active_view', 'student');
+      sessionStorage.setItem('nilaiku_student_nisn', nisn);
+      sessionStorage.setItem('nilaiku_student_subject', subName);
       // Cari student record khusus untuk mapel ini
       let student = studentsList.find(s => s.nisn.toLowerCase() === nisn.toLowerCase() && s.subject === subName);
       if (!student) {
@@ -5850,6 +5894,7 @@
 
     function pilihTabKelas(cls) {
       selectedClassTab = cls;
+      sessionStorage.setItem('nilaiku_active_class', cls);
       renderClassTabs();
       renderAdminTable();
       const label = cls === 'all' ? 'Semua Kelas' : 'Kelas ' + cls;
@@ -5984,6 +6029,13 @@
     }
 
     function kembaliKeLogin() {
+      sessionStorage.removeItem('nilaiku_active_view');
+      sessionStorage.removeItem('nilaiku_student_nisn');
+      sessionStorage.removeItem('nilaiku_student_subject');
+      sessionStorage.removeItem('nilaiku_active_subject');
+      sessionStorage.removeItem('nilaiku_active_class');
+      sessionStorage.removeItem('nilaiku_teacher_session_pass');
+
       document.getElementById('dashboardView').style.display = 'none';
       document.getElementById('adminDashboardView').style.display = 'none';
       document.getElementById('loginView').style.display = 'flex';
@@ -6116,6 +6168,10 @@
 
     // 7. DASHBOARD GURU / ADMIN MULTI-KELAS
     function bukaDashboardGuru() {
+      sessionStorage.setItem('nilaiku_active_view', 'guru');
+      sessionStorage.setItem('nilaiku_active_subject', selectedSubject);
+      sessionStorage.setItem('nilaiku_active_class', selectedClassTab);
+
       document.getElementById('loginView').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'none';
       document.getElementById('adminDashboardView').style.display = 'block';
