@@ -1431,6 +1431,54 @@
       color: #fff;
     }
 
+
+    /* SUBJECT SWITCHER PILLS */
+    .subject-switcher-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+    .subject-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      border: 1.5px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(15, 41, 74, 0.04);
+    }
+    .subject-pill:hover {
+      border-color: var(--blue-accent);
+      color: var(--navy-primary);
+      transform: translateY(-1px);
+    }
+    .subject-pill.active {
+      background: var(--navy-primary);
+      color: #ffffff;
+      border-color: var(--navy-primary);
+      box-shadow: 0 4px 14px rgba(15, 41, 74, 0.25);
+    }
+    .subject-pill .sub-teacher {
+      font-size: 0.72rem;
+      font-weight: 600;
+      opacity: 0.85;
+      padding-left: 4px;
+      border-left: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .subject-pill:not(.active) .sub-teacher {
+      border-left-color: var(--border-dark);
+      color: var(--text-muted);
+    }
+  
   </style>
   <!-- SUPABASE JS SDK UNTUK DATABASE ONLINE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1557,6 +1605,15 @@
             </div>
           </div>
 
+          
+          <!-- TAB PILIHAN MATA PELAJARAN UNTUK SISWA -->
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">
+              Pilih Mata Pelajaran:
+            </label>
+            <div class="subject-switcher-bar" id="studentSubjectTabs"></div>
+          </div>
+  
           <!-- PROFIL SISWA -->
           <div class="student-profile">
             <div class="profile-info">
@@ -1891,6 +1948,39 @@
   <!-- ========================================================
        MODAL 3: TAMBAH KELAS BARU
        ======================================================== -->
+  
+  <!-- MODAL: TAMBAH MATA PELAJARAN BARU -->
+  <div id="modalTambahMapel" class="modal-overlay" style="display: none;" onclick="if(event.target === this) tutupModalTambahMapel()">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>📚 Tambah Mata Pelajaran Baru</h3>
+        <button type="button" class="modal-close" onclick="tutupModalTambahMapel()">✕</button>
+      </div>
+      <form id="formTambahMapel" onsubmit="handleSimpanMapelBaru(event)">
+        <div class="form-group">
+          <label class="form-label">Nama Mata Pelajaran</label>
+          <input type="text" id="inputNamaMapelBaru" class="form-input" placeholder="Contoh: Matematika" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Guru Pengampu</label>
+          <input type="text" id="inputGuruMapelBaru" class="form-input" placeholder="Contoh: Ahmad, S.Pd." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Standar KKM</label>
+          <input type="number" id="inputKkmMapelBaru" class="form-input" value="75" min="50" max="100" required>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button type="submit" class="btn btn-success" style="flex: 1;">
+            Simpan Mata Pelajaran
+          </button>
+          <button type="button" class="btn btn-outline" onclick="tutupModalTambahMapel()">
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
   <div id="modalTambahKelas" class="modal-overlay">
     <div class="modal-box" style="max-width: 420px;">
       <div class="modal-header">
@@ -2108,7 +2198,7 @@
         <div class="form-group">
           <label class="form-label">Supabase Project URL</label>
           <input type="url" id="cfgSupabaseUrl" class="form-input" placeholder="https://xxxxxxxxxxxx.supabase.co" required>
-          <div class="form-hint">Sesuai project Anda: <code>https://qiqzgjuxbqdpwllaxzdu.supabase.co</code></div>
+          <div class="form-hint">Sesuai project Anda: <code>https://gigzgjuxbqdpwllaxzdu.supabase.co</code></div>
         </div>
 
         <div class="form-group">
@@ -2227,6 +2317,29 @@
     ];
 
     // DATA INITIAL SISWA (52 SISWA: KELAS VIII A & KELAS VIII B)
+    const DEFAULT_SUBJECTS = [
+  {
+    "id": "inf",
+    "name": "Informatika",
+    "teacher": "Fery Ferdian, S.Kom",
+    "kkm": 75,
+    "icon": "💻"
+  },
+  {
+    "id": "bind",
+    "name": "Bahasa Indonesia",
+    "teacher": "Dadi, S.Pd., Gr",
+    "kkm": 75,
+    "icon": "📖"
+  },
+  {
+    "id": "bing",
+    "name": "Bahasa Inggris",
+    "teacher": "Zhilla, S.Pd.",
+    "kkm": 75,
+    "icon": "🇬🇧"
+  }
+];
     const DEFAULT_STUDENTS = [
   {
     "no": 1,
@@ -2242,7 +2355,44 @@
       92
     ],
     "asts": 88,
-    "asaj": 90
+    "asaj": 90,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 1,
+    "nisn": "4330-2526101",
+    "name": "Adinda Sabina Putri Cuhva",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 1,
+    "nisn": "4330-2526101",
+    "name": "Adinda Sabina Putri Cuhva",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 2,
@@ -2258,7 +2408,44 @@
       94
     ],
     "asts": 93,
-    "asaj": 94
+    "asaj": 94,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 2,
+    "nisn": "4330-2526102",
+    "name": "Alisha Khusnaira",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 2,
+    "nisn": "4330-2526102",
+    "name": "Alisha Khusnaira",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 3,
@@ -2274,7 +2461,44 @@
       88
     ],
     "asts": 84,
-    "asaj": 86
+    "asaj": 86,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 3,
+    "nisn": "4330-2526103",
+    "name": "Anaya Waheeda Prilia",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 3,
+    "nisn": "4330-2526103",
+    "name": "Anaya Waheeda Prilia",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 4,
@@ -2290,7 +2514,44 @@
       95
     ],
     "asts": 90,
-    "asaj": 92
+    "asaj": 92,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 4,
+    "nisn": "4330-2526104",
+    "name": "Bilqis Sharliz Queenzha",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 4,
+    "nisn": "4330-2526104",
+    "name": "Bilqis Sharliz Queenzha",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 5,
@@ -2306,7 +2567,44 @@
       76
     ],
     "asts": 74,
-    "asaj": null
+    "asaj": null,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 5,
+    "nisn": "4330-2526105",
+    "name": "Daffa Al Abrar Al Fansyah",
+    "class": "VIII A",
+    "attendance": 14,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 5,
+    "nisn": "4330-2526105",
+    "name": "Daffa Al Abrar Al Fansyah",
+    "class": "VIII A",
+    "attendance": 14,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 6,
@@ -2322,7 +2620,44 @@
       90
     ],
     "asts": 89,
-    "asaj": 91
+    "asaj": 91,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 6,
+    "nisn": "4330-2526106",
+    "name": "Janetta Aleyza Andiputri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 6,
+    "nisn": "4330-2526106",
+    "name": "Janetta Aleyza Andiputri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 7,
@@ -2338,7 +2673,44 @@
       86
     ],
     "asts": 82,
-    "asaj": 85
+    "asaj": 85,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 7,
+    "nisn": "4330-2526107",
+    "name": "Kasyfi Syarifi Rosdiansyah",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 7,
+    "nisn": "4330-2526107",
+    "name": "Kasyfi Syarifi Rosdiansyah",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 8,
@@ -2354,7 +2726,44 @@
       98
     ],
     "asts": 95,
-    "asaj": 96
+    "asaj": 96,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 8,
+    "nisn": "4330-2526108",
+    "name": "Keenar Liyana",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 8,
+    "nisn": "4330-2526108",
+    "name": "Keenar Liyana",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 9,
@@ -2370,7 +2779,44 @@
       null
     ],
     "asts": 78,
-    "asaj": null
+    "asaj": null,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 9,
+    "nisn": "4330-2526109",
+    "name": "M Revhan Akhtar Aditya",
+    "class": "VIII A",
+    "attendance": 14,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 9,
+    "nisn": "4330-2526109",
+    "name": "M Revhan Akhtar Aditya",
+    "class": "VIII A",
+    "attendance": 14,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 10,
@@ -2386,7 +2832,44 @@
       85
     ],
     "asts": 82,
-    "asaj": 84
+    "asaj": 84,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 10,
+    "nisn": "4330-2526110",
+    "name": "M. Raffa Azzikra",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 10,
+    "nisn": "4330-2526110",
+    "name": "M. Raffa Azzikra",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 11,
@@ -2402,7 +2885,44 @@
       88
     ],
     "asts": 87,
-    "asaj": 89
+    "asaj": 89,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 11,
+    "nisn": "4330-2526111",
+    "name": "Mikalla Efrans Wiramapta",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 11,
+    "nisn": "4330-2526111",
+    "name": "Mikalla Efrans Wiramapta",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 12,
@@ -2418,7 +2938,44 @@
       75
     ],
     "asts": 72,
-    "asaj": null
+    "asaj": null,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 12,
+    "nisn": "4330-2526112",
+    "name": "Moch Bilal Muhaimin Pranata",
+    "class": "VIII A",
+    "attendance": 13,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 12,
+    "nisn": "4330-2526112",
+    "name": "Moch Bilal Muhaimin Pranata",
+    "class": "VIII A",
+    "attendance": 13,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 13,
@@ -2434,7 +2991,44 @@
       90
     ],
     "asts": 86,
-    "asaj": 88
+    "asaj": 88,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 13,
+    "nisn": "4330-2526113",
+    "name": "Moh Mandala Putra",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 13,
+    "nisn": "4330-2526113",
+    "name": "Moh Mandala Putra",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 14,
@@ -2450,7 +3044,44 @@
       92
     ],
     "asts": 91,
-    "asaj": 93
+    "asaj": 93,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 14,
+    "nisn": "4330-2526114",
+    "name": "Muh Al Fatih Mikail Marindra",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 14,
+    "nisn": "4330-2526114",
+    "name": "Muh Al Fatih Mikail Marindra",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 15,
@@ -2466,7 +3097,44 @@
       84
     ],
     "asts": 83,
-    "asaj": 85
+    "asaj": 85,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 15,
+    "nisn": "4330-2526115",
+    "name": "Muhammad Aldrin Alghifari",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 15,
+    "nisn": "4330-2526115",
+    "name": "Muhammad Aldrin Alghifari",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 16,
@@ -2482,7 +3150,44 @@
       88
     ],
     "asts": 85,
-    "asaj": 87
+    "asaj": 87,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 16,
+    "nisn": "4330-2526116",
+    "name": "Nafis Ahmad A",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 16,
+    "nisn": "4330-2526116",
+    "name": "Nafis Ahmad A",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 17,
@@ -2498,7 +3203,44 @@
       96
     ],
     "asts": 93,
-    "asaj": 95
+    "asaj": 95,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 17,
+    "nisn": "4330-2526117",
+    "name": "Nindya Kireina Ramadhani",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 17,
+    "nisn": "4330-2526117",
+    "name": "Nindya Kireina Ramadhani",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 18,
@@ -2514,7 +3256,44 @@
       82
     ],
     "asts": 80,
-    "asaj": 83
+    "asaj": 83,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 18,
+    "nisn": "4330-2526118",
+    "name": "Nizar Zilmi Syahban",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 18,
+    "nisn": "4330-2526118",
+    "name": "Nizar Zilmi Syahban",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 19,
@@ -2530,7 +3309,44 @@
       97
     ],
     "asts": 96,
-    "asaj": 97
+    "asaj": 97,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 19,
+    "nisn": "4330-2526119",
+    "name": "Pradipta Driyarkara Qytara Puruhita Galur Suryana Putri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 19,
+    "nisn": "4330-2526119",
+    "name": "Pradipta Driyarkara Qytara Puruhita Galur Suryana Putri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 20,
@@ -2546,7 +3362,44 @@
       89
     ],
     "asts": 89,
-    "asaj": 91
+    "asaj": 91,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 20,
+    "nisn": "4330-2526120",
+    "name": "Qhillan Tanisya Saquilla",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 20,
+    "nisn": "4330-2526120",
+    "name": "Qhillan Tanisya Saquilla",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 21,
@@ -2562,7 +3415,44 @@
       95
     ],
     "asts": 92,
-    "asaj": 94
+    "asaj": 94,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 21,
+    "nisn": "4330-2526121",
+    "name": "Qisya Batrisya Irdina",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 21,
+    "nisn": "4330-2526121",
+    "name": "Qisya Batrisya Irdina",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 22,
@@ -2578,7 +3468,44 @@
       90
     ],
     "asts": 90,
-    "asaj": 92
+    "asaj": 92,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 22,
+    "nisn": "4330-2526122",
+    "name": "Salma Khoerunnisa",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 22,
+    "nisn": "4330-2526122",
+    "name": "Salma Khoerunnisa",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 23,
@@ -2594,7 +3521,44 @@
       96
     ],
     "asts": 94,
-    "asaj": 95
+    "asaj": 95,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 23,
+    "nisn": "4330-2526123",
+    "name": "Syaima Nurul Aisyah",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 23,
+    "nisn": "4330-2526123",
+    "name": "Syaima Nurul Aisyah",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 24,
@@ -2610,7 +3574,44 @@
       88
     ],
     "asts": 85,
-    "asaj": 87
+    "asaj": 87,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 24,
+    "nisn": "4330-2526124",
+    "name": "Tazka Azfar Ramadhan",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 24,
+    "nisn": "4330-2526124",
+    "name": "Tazka Azfar Ramadhan",
+    "class": "VIII A",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 25,
@@ -2626,7 +3627,44 @@
       93
     ],
     "asts": 91,
-    "asaj": 93
+    "asaj": 93,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 25,
+    "nisn": "4330-2526125",
+    "name": "Tiara Mega Nurliana",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 25,
+    "nisn": "4330-2526125",
+    "name": "Tiara Mega Nurliana",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 26,
@@ -2642,7 +3680,44 @@
       95
     ],
     "asts": 93,
-    "asaj": 95
+    "asaj": 95,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 26,
+    "nisn": "4330-2526126",
+    "name": "Vidya Nur Ismaya Putri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 26,
+    "nisn": "4330-2526126",
+    "name": "Vidya Nur Ismaya Putri",
+    "class": "VIII A",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 1,
@@ -2658,7 +3733,44 @@
       85
     ],
     "asts": 80,
-    "asaj": 0
+    "asaj": 0,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 1,
+    "nisn": "4330-2526002",
+    "name": "Ainzya Putri M",
+    "class": "VIII B",
+    "attendance": 20,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 1,
+    "nisn": "4330-2526002",
+    "name": "Ainzya Putri M",
+    "class": "VIII B",
+    "attendance": 20,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 2,
@@ -2674,7 +3786,44 @@
       85
     ],
     "asts": 85,
-    "asaj": 80
+    "asaj": 80,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 2,
+    "nisn": "4330-2526004",
+    "name": "Alfina Nadia Fauziah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 2,
+    "nisn": "4330-2526004",
+    "name": "Alfina Nadia Fauziah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 3,
@@ -2690,7 +3839,44 @@
       86
     ],
     "asts": 83,
-    "asaj": 82
+    "asaj": 82,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 3,
+    "nisn": "4330-2526011",
+    "name": "Aryan Rasyad Noor Iksan",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 3,
+    "nisn": "4330-2526011",
+    "name": "Aryan Rasyad Noor Iksan",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 4,
@@ -2706,7 +3892,44 @@
       94
     ],
     "asts": 91,
-    "asaj": 90
+    "asaj": 90,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 4,
+    "nisn": "4330-2526015",
+    "name": "Chayra Ghaziya Zahran",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 4,
+    "nisn": "4330-2526015",
+    "name": "Chayra Ghaziya Zahran",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 5,
@@ -2722,7 +3945,44 @@
       80
     ],
     "asts": 82,
-    "asaj": 84
+    "asaj": 84,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 5,
+    "nisn": "4330-2526017",
+    "name": "Devan Alvian Mubarok",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 5,
+    "nisn": "4330-2526017",
+    "name": "Devan Alvian Mubarok",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 6,
@@ -2738,7 +3998,44 @@
       89
     ],
     "asts": 87,
-    "asaj": 88
+    "asaj": 88,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 6,
+    "nisn": "4330-2526019",
+    "name": "Fadlan Fazlurrahman",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 6,
+    "nisn": "4330-2526019",
+    "name": "Fadlan Fazlurrahman",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 7,
@@ -2754,7 +4051,44 @@
       91
     ],
     "asts": 90,
-    "asaj": 92
+    "asaj": 92,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 7,
+    "nisn": "4330-2526020",
+    "name": "Faisya Nida Rahmah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 7,
+    "nisn": "4330-2526020",
+    "name": "Faisya Nida Rahmah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 8,
@@ -2770,7 +4104,44 @@
       88
     ],
     "asts": 85,
-    "asaj": 86
+    "asaj": 86,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 8,
+    "nisn": "4330-2526021",
+    "name": "Faiz Muhammad Faisal",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 8,
+    "nisn": "4330-2526021",
+    "name": "Faiz Muhammad Faisal",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 9,
@@ -2786,7 +4157,44 @@
       94
     ],
     "asts": 92,
-    "asaj": 93
+    "asaj": 93,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 9,
+    "nisn": "4330-2526023",
+    "name": "Farin Naura Zafarani",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 9,
+    "nisn": "4330-2526023",
+    "name": "Farin Naura Zafarani",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 10,
@@ -2802,7 +4210,44 @@
       95
     ],
     "asts": 91,
-    "asaj": 92
+    "asaj": 92,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 10,
+    "nisn": "4330-2526026",
+    "name": "Hannah Sabrina Maryam",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 10,
+    "nisn": "4330-2526026",
+    "name": "Hannah Sabrina Maryam",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 11,
@@ -2818,7 +4263,44 @@
       87
     ],
     "asts": 86,
-    "asaj": 88
+    "asaj": 88,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 11,
+    "nisn": "4330-2526032",
+    "name": "Keyra Navira Danate",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 11,
+    "nisn": "4330-2526032",
+    "name": "Keyra Navira Danate",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 12,
@@ -2834,7 +4316,44 @@
       84
     ],
     "asts": 84,
-    "asaj": 85
+    "asaj": 85,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 12,
+    "nisn": "4330-2526034",
+    "name": "Lintang Ramadhan Sukmadiraja",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 12,
+    "nisn": "4330-2526034",
+    "name": "Lintang Ramadhan Sukmadiraja",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 13,
@@ -2850,7 +4369,44 @@
       95
     ],
     "asts": 93,
-    "asaj": 94
+    "asaj": 94,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 13,
+    "nisn": "4330-2526037",
+    "name": "Maryam Ali",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 13,
+    "nisn": "4330-2526037",
+    "name": "Maryam Ali",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 14,
@@ -2866,7 +4422,44 @@
       83
     ],
     "asts": 84,
-    "asaj": 85
+    "asaj": 85,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 14,
+    "nisn": "4330-2526040",
+    "name": "Muhammad Irsyad Rifky Alkhairu",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 14,
+    "nisn": "4330-2526040",
+    "name": "Muhammad Irsyad Rifky Alkhairu",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 15,
@@ -2882,7 +4475,44 @@
       76
     ],
     "asts": 74,
-    "asaj": null
+    "asaj": null,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 15,
+    "nisn": "4330-2526049",
+    "name": "Muhammad Kenzie Ammar Sudjana",
+    "class": "VIII B",
+    "attendance": 14,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 15,
+    "nisn": "4330-2526049",
+    "name": "Muhammad Kenzie Ammar Sudjana",
+    "class": "VIII B",
+    "attendance": 14,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 16,
@@ -2898,7 +4528,44 @@
       92
     ],
     "asts": 90,
-    "asaj": 91
+    "asaj": 91,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 16,
+    "nisn": "4330-2526033",
+    "name": "Muhammad Khairan Fasyza Jabar",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 16,
+    "nisn": "4330-2526033",
+    "name": "Muhammad Khairan Fasyza Jabar",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 17,
@@ -2914,7 +4581,44 @@
       89
     ],
     "asts": 87,
-    "asaj": 88
+    "asaj": 88,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 17,
+    "nisn": "4330-2526050",
+    "name": "Muhammad Rizky Abdul Ba'its",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 17,
+    "nisn": "4330-2526050",
+    "name": "Muhammad Rizky Abdul Ba'its",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 18,
@@ -2930,7 +4634,44 @@
       97
     ],
     "asts": 95,
-    "asaj": 96
+    "asaj": 96,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 18,
+    "nisn": "4330-2526054",
+    "name": "Naura Ayumi",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 18,
+    "nisn": "4330-2526054",
+    "name": "Naura Ayumi",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 19,
@@ -2946,7 +4687,44 @@
       94
     ],
     "asts": 92,
-    "asaj": 93
+    "asaj": 93,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 19,
+    "nisn": "4330-2526060",
+    "name": "Qonita Hanifa",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 19,
+    "nisn": "4330-2526060",
+    "name": "Qonita Hanifa",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 20,
@@ -2962,7 +4740,44 @@
       87
     ],
     "asts": 86,
-    "asaj": 87
+    "asaj": 87,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 20,
+    "nisn": "4330-2526063",
+    "name": "Ray Jibran Elbany",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 20,
+    "nisn": "4330-2526063",
+    "name": "Ray Jibran Elbany",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 21,
@@ -2978,7 +4793,44 @@
       91
     ],
     "asts": 89,
-    "asaj": 90
+    "asaj": 90,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 21,
+    "nisn": "4330-2526065",
+    "name": "Rizqi Rijaldi",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 21,
+    "nisn": "4330-2526065",
+    "name": "Rizqi Rijaldi",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 22,
@@ -2994,7 +4846,44 @@
       96
     ],
     "asts": 94,
-    "asaj": 95
+    "asaj": 95,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 22,
+    "nisn": "4330-2526067",
+    "name": "Rizqia Nafiza Putri Eldiansyah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 22,
+    "nisn": "4330-2526067",
+    "name": "Rizqia Nafiza Putri Eldiansyah",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 23,
@@ -3010,7 +4899,44 @@
       93
     ],
     "asts": 91,
-    "asaj": 92
+    "asaj": 92,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 23,
+    "nisn": "4330-2526070",
+    "name": "Shayna Clarissa Abelia",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 23,
+    "nisn": "4330-2526070",
+    "name": "Shayna Clarissa Abelia",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 24,
@@ -3026,7 +4952,44 @@
       85
     ],
     "asts": 85,
-    "asaj": 86
+    "asaj": 86,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 24,
+    "nisn": "4330-2526069",
+    "name": "Syabil Azhfar Hidayat",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 24,
+    "nisn": "4330-2526069",
+    "name": "Syabil Azhfar Hidayat",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 25,
@@ -3042,7 +5005,44 @@
       98
     ],
     "asts": 96,
-    "asaj": 97
+    "asaj": 97,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 25,
+    "nisn": "4330-2526072",
+    "name": "Syakira Az Zahra",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 25,
+    "nisn": "4330-2526072",
+    "name": "Syakira Az Zahra",
+    "class": "VIII B",
+    "attendance": 16,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   },
   {
     "no": 26,
@@ -3058,13 +5058,52 @@
       88
     ],
     "asts": 88,
-    "asaj": 89
+    "asaj": 89,
+    "subject": "Bahasa Indonesia"
+  },
+  {
+    "no": 26,
+    "nisn": "4330-2526075",
+    "name": "Zaky Fajarul Anwar",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      85,
+      90,
+      88,
+      92,
+      90
+    ],
+    "asts": 88,
+    "asaj": 90,
+    "subject": "Informatika",
+    "manualFinalScore": null
+  },
+  {
+    "no": 26,
+    "nisn": "4330-2526075",
+    "name": "Zaky Fajarul Anwar",
+    "class": "VIII B",
+    "attendance": 15,
+    "tasks": [
+      84,
+      88,
+      86,
+      90,
+      88
+    ],
+    "asts": 86,
+    "asaj": 88,
+    "subject": "Bahasa Inggris",
+    "manualFinalScore": null
   }
 ];
     const DEFAULT_CLASSES = ["VIII A","VIII B"];
 
     const DEFAULT_CONFIG = {
       appName: "NILAIKU",
+      subjects: DEFAULT_SUBJECTS,
+      activeSubject: "Informatika",
       schoolName: "SMP ISLAM AL AZHAR 30 TASIKMALAYA",
       subjectName: "BAHASA INDONESIA",
       teacherName: "Dadi, S.Pd., Gr",
@@ -3074,8 +5113,8 @@
       kkm: 75,
       maxAttendance: 16,
       passwordGuru: "guru123",
-      supabaseUrl: "https://qiqzgjuxbqdpwllaxzdu.supabase.co",
-      supabaseAnonKey: "",
+      supabaseUrl: "https://gigzgjuxbqdpwllaxzdu.supabase.co",
+      supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpZ3pnanV4YnFkcHdsbGF4emR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1OTQzMTksImV4cCI6MjEwOTE3MDMxOX0.klHMimfMos0sHuqev--4-xgP1h0kqoriSNPvuGZL0N8",
       googleSheetsUrl: "https://docs.google.com/spreadsheets/u/0/",
       dateDoc: "Tasikmalaya, 28 September 2026",
       logoUrl: OFFICIAL_DEFAULT_LOGO
@@ -3094,9 +5133,14 @@
     document.addEventListener('DOMContentLoaded', () => {
       applyConfigToUI();
       renderClassTabs();
+      renderAdminSubjectTabs();
       renderAdminTable();
       renderHelperChips();
       populateClassDatalist();
+      // Auto-connect cloud Supabase
+      setTimeout(() => {
+        checkSupabaseConnection(true);
+      }, 300);
     });
 
     
@@ -3107,8 +5151,8 @@
 
     function getSupabaseClient() {
       if (supabaseClient) return supabaseClient;
-      const url = appConfig.supabaseUrl || "https://qiqzgjuxbqdpwllaxzdu.supabase.co";
-      const key = appConfig.supabaseAnonKey;
+      const url = appConfig.supabaseUrl || "https://gigzgjuxbqdpwllaxzdu.supabase.co";
+      const key = appConfig.supabaseAnonKey || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpZ3pnanV4YnFkcHdsbGF4emR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1OTQzMTksImV4cCI6MjEwOTE3MDMxOX0.klHMimfMos0sHuqev--4-xgP1h0kqoriSNPvuGZL0N8";
       if (window.supabase && url && key && key.trim() !== '') {
         try {
           supabaseClient = window.supabase.createClient(url.trim(), key.trim());
@@ -3184,7 +5228,7 @@
         return;
       }
       const urlInput = document.getElementById('cfgSupabaseUrl');
-      if (urlInput) urlInput.value = appConfig.supabaseUrl || "https://qiqzgjuxbqdpwllaxzdu.supabase.co";
+      if (urlInput) urlInput.value = appConfig.supabaseUrl || "https://gigzgjuxbqdpwllaxzdu.supabase.co";
       const keyInput = document.getElementById('cfgSupabaseKey');
       if (keyInput) keyInput.value = appConfig.supabaseAnonKey || "";
 
@@ -3243,6 +5287,7 @@
         nisn: String(row.nisn),
         name: row.name,
         class: row.class || 'VIII A',
+        subject: row.subject || 'Informatika',
         attendance: row.attendance !== null && row.attendance !== undefined ? Number(row.attendance) : 0,
         tasks: [
           row.task_1 !== null && row.task_1 !== undefined ? Number(row.task_1) : null,
@@ -3262,6 +5307,7 @@
         nisn: String(student.nisn).trim(),
         name: student.name.trim(),
         class: (student.class || 'VIII A').trim(),
+        subject: (student.subject || (typeof selectedSubject !== 'undefined' ? selectedSubject : 'Informatika')).trim(),
         attendance: Number(student.attendance) || 0,
         task_1: student.tasks && student.tasks[0] !== null && student.tasks[0] !== undefined ? Number(student.tasks[0]) : null,
         task_2: student.tasks && student.tasks[1] !== null && student.tasks[1] !== undefined ? Number(student.tasks[1]) : null,
@@ -3305,7 +5351,7 @@
 
         // 3. Upsert seluruh siswa
         const rows = studentsList.map(s => mapStudentToRow(s));
-        const { data, error } = await client.from('students').upsert(rows, { onConflict: 'nisn' });
+        const { data, error } = await client.from('students').upsert(rows, { onConflict: 'nisn,subject' });
 
         if (error) throw error;
 
@@ -3358,9 +5404,33 @@
     async function syncStudentToCloud(student) {
       const client = getSupabaseClient();
       if (!client) return;
+
+      const teacherPass = currentTeacherSessionPassword || appConfig.passwordGuru || 'guru123';
+
       try {
-        const row = mapStudentToRow(student);
-        await client.from('students').upsert(row, { onConflict: 'nisn' });
+        // Coba via Secure RPC terlebih dahulu
+        const { data, error } = await client.rpc('save_student_secure', {
+          p_password: teacherPass,
+          p_nisn: String(student.nisn).trim(),
+          p_name: student.name.trim(),
+          p_class: (student.class || 'VIII A').trim(),
+          p_subject: (student.subject || 'Informatika').trim(),
+          p_attendance: Number(student.attendance) || 0,
+          p_task_1: student.tasks && student.tasks[0] !== null && student.tasks[0] !== undefined ? Number(student.tasks[0]) : null,
+          p_task_2: student.tasks && student.tasks[1] !== null && student.tasks[1] !== undefined ? Number(student.tasks[1]) : null,
+          p_task_3: student.tasks && student.tasks[2] !== null && student.tasks[2] !== undefined ? Number(student.tasks[2]) : null,
+          p_task_4: student.tasks && student.tasks[3] !== null && student.tasks[3] !== undefined ? Number(student.tasks[3]) : null,
+          p_task_5: student.tasks && student.tasks[4] !== null && student.tasks[4] !== undefined ? Number(student.tasks[4]) : null,
+          p_asts: student.asts !== null && student.asts !== undefined ? Number(student.asts) : null,
+          p_asaj: student.asaj !== null && student.asaj !== undefined ? Number(student.asaj) : null,
+          p_manual_final: student.manualFinalScore !== null && student.manualFinalScore !== undefined ? Number(student.manualFinalScore) : null
+        });
+
+        if (error) {
+          // Fallback direct upsert jika RPC belum di-create
+          const row = mapStudentToRow(student);
+          await client.from('students').upsert(row, { onConflict: 'nisn,subject' });
+        }
       } catch (err) {
         console.warn('Gagal sinkron siswa ke Supabase:', err);
       }
@@ -3369,8 +5439,19 @@
     async function syncDeleteStudentToCloud(nisn) {
       const client = getSupabaseClient();
       if (!client) return;
+
+      const teacherPass = currentTeacherSessionPassword || appConfig.passwordGuru || 'guru123';
+
       try {
-        await client.from('students').delete().eq('nisn', String(nisn).trim());
+        const { error } = await client.rpc('delete_student_secure', {
+          p_password: teacherPass,
+          p_nisn: String(nisn).trim(),
+          p_subject: selectedSubject || 'Informatika'
+        });
+
+        if (error) {
+          await client.from('students').delete().eq('nisn', String(nisn).trim()).eq('subject', selectedSubject || 'Informatika');
+        }
       } catch (err) {
         console.warn('Gagal hapus siswa dari Supabase:', err);
       }
@@ -3380,9 +5461,23 @@
     function loadConfig() {
       try {
         const saved = localStorage.getItem('nilaiku_app_config');
-        return saved ? Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved)) : DEFAULT_CONFIG;
+        const cfg = saved ? Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved)) : Object.assign({}, DEFAULT_CONFIG);
+        // Auto-heal typo URL jika ada cache lama gigzgjuxbqdpwllaxzdu
+        if (cfg.supabaseUrl && cfg.supabaseUrl.includes('gigzgjuxbqdpwllaxzdu')) {
+          cfg.supabaseUrl = 'https://gigzgjuxbqdpwllaxzdu.supabase.co';
+          localStorage.setItem('nilaiku_app_config', JSON.stringify(cfg));
+        }
+        if (!cfg.supabaseAnonKey) {
+          cfg.supabaseAnonKey = DEFAULT_CONFIG.supabaseAnonKey;
+          localStorage.setItem('nilaiku_app_config', JSON.stringify(cfg));
+        }
+        if (!cfg.subjects || !cfg.subjects.length) {
+          cfg.subjects = DEFAULT_SUBJECTS;
+          localStorage.setItem('nilaiku_app_config', JSON.stringify(cfg));
+        }
+        return cfg;
       } catch (e) {
-        return DEFAULT_CONFIG;
+        return Object.assign({}, DEFAULT_CONFIG);
       }
     }
 
@@ -3449,7 +5544,9 @@
       document.getElementById('loginSubjectTitle').textContent = appConfig.subjectName;
       document.getElementById('studentSubjectBadge').textContent = appConfig.subjectName;
       document.getElementById('adminMapelLabel').textContent = appConfig.subjectName + ' • Multi-Kelas Aktif';
-      document.getElementById('printSubject').textContent = appConfig.subjectName;
+      document.getElementById('printSubject').textContent = selectedSubject;
+      const activeSubObj = getActiveSubjectObj();
+      document.getElementById('printTeacherName').textContent = activeSubObj.teacher;
 
       document.getElementById('loginTeacherSubtitle').textContent = 'Pengampu: ' + appConfig.teacherName;
       document.getElementById('studentTeacherSubtitle').textContent = 'Pengampu: ' + appConfig.teacherName;
@@ -3468,6 +5565,234 @@
       }
     }
 
+    
+    // ========================================================
+    // MULTI-SUBJECT & MULTI-TEACHER LOGIC
+    // ========================================================
+    let selectedSubject = "Informatika";
+    let currentStudentNisn = null;
+
+    function getSubjectList() {
+      if (appConfig.subjects && Array.isArray(appConfig.subjects) && appConfig.subjects.length > 0) {
+        return appConfig.subjects;
+      }
+      return DEFAULT_SUBJECTS;
+    }
+
+    function getActiveSubjectObj() {
+      const list = getSubjectList();
+      return list.find(s => s.name === selectedSubject) || list[0];
+    }
+
+    function renderAdminSubjectTabs() {
+      const container = document.getElementById('adminSubjectTabs');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const list = getSubjectList();
+      list.forEach(sub => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'subject-pill ' + (selectedSubject === sub.name ? 'active' : '');
+        btn.innerHTML = (sub.icon || '📚') + ' <span>' + sub.name + '</span> <span class="sub-teacher">' + sub.teacher + '</span>';
+        btn.onclick = () => {
+          selectedSubject = sub.name;
+          appConfig.activeSubject = sub.name;
+          appConfig.subjectName = sub.name;
+          appConfig.teacherName = sub.teacher;
+          appConfig.kkm = sub.kkm || 75;
+          saveConfig(appConfig);
+          applyConfigToUI();
+          renderAdminSubjectTabs();
+          renderAdminTable();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderStudentSubjectTabs(nisn, activeSubName) {
+      const container = document.getElementById('studentSubjectTabs');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const list = getSubjectList();
+      list.forEach(sub => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'subject-pill ' + (activeSubName === sub.name ? 'active' : '');
+        btn.innerHTML = (sub.icon || '📚') + ' <span>' + sub.name + '</span> <span class="sub-teacher">' + sub.teacher + '</span>';
+        btn.onclick = () => {
+          bukaNilaiSiswaPerMapel(nisn, sub.name);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function bukaNilaiSiswaPerMapel(nisn, subName) {
+      currentStudentNisn = nisn;
+      // Cari student record khusus untuk mapel ini
+      let student = studentsList.find(s => s.nisn.toLowerCase() === nisn.toLowerCase() && s.subject === subName);
+      if (!student) {
+        // Jika belum ada record mapel ini, cari profil dasar siswa dan buatkan record
+        const base = studentsList.find(s => s.nisn.toLowerCase() === nisn.toLowerCase());
+        if (base) {
+          student = {
+            nisn: base.nisn,
+            name: base.name,
+            class: base.class,
+            subject: subName,
+            attendance: 16,
+            tasks: [85, 88, 90, 85, null],
+            asts: 85,
+            asaj: 88,
+            manualFinalScore: null
+          };
+          studentsList.push(student);
+          saveStudents(studentsList);
+        }
+      }
+
+      if (student) {
+        const subObj = getSubjectList().find(s => s.name === subName) || { name: subName, teacher: 'Guru Pengampu', kkm: 75 };
+        tampilkanDataSiswaSpesifik(student, subObj);
+        renderStudentSubjectTabs(nisn, subName);
+      }
+    }
+
+    function tampilkanDataSiswaSpesifik(student, subObj) {
+      document.getElementById('studentName').textContent = student.name;
+      document.getElementById('studentSubjectBadge').textContent = subObj.name.toUpperCase();
+      document.getElementById('studentTeacherSubtitle').textContent = 'Pengampu: ' + subObj.teacher;
+      document.getElementById('studentNISN').textContent = 'NISN: ' + student.nisn;
+      document.getElementById('studentKelas').textContent = 'Kelas: ' + (student.class || 'VIII');
+      document.getElementById('studentKkmInfo').innerHTML = '🎯 Standar KKM: <strong>' + (subObj.kkm || 75) + '</strong>';
+
+      const kkm = Number(subObj.kkm) || 75;
+      const maxAtt = Number(appConfig.maxAttendance) || 16;
+      const attVal = Math.min(student.attendance, maxAtt);
+      const attScore = (attVal / maxAtt) * 100;
+
+      // Kehadiran
+      document.getElementById('valKehadiran').textContent = attVal;
+      document.getElementById('subKehadiran').textContent = 'Dari ' + maxAtt + ' Pertemuan (' + Math.round(attScore) + '%)';
+
+      // Rata-rata Tugas
+      const validTasks = student.tasks.filter(t => t !== null && t !== undefined && t !== '');
+      const avgTasks = validTasks.length > 0 
+        ? (validTasks.reduce((a, b) => a + Number(b), 0) / validTasks.length)
+        : 0;
+      document.getElementById('valTugas').textContent = validTasks.length > 0 ? Math.round(avgTasks) : '-';
+      document.getElementById('subTugas').textContent = validTasks.length + ' dari 5 Tugas Terkumpul';
+
+      // ASTS
+      document.getElementById('valASTS').textContent = (student.asts !== null && student.asts !== undefined && student.asts !== '') ? student.asts : '-';
+      document.getElementById('subASTS').textContent = (student.asts !== null && student.asts !== undefined && student.asts !== '') 
+        ? (student.asts >= kkm ? 'Tuntas' : 'Perlu Remedial') 
+        : 'Belum Ada Nilai';
+
+      // ASAJ
+      document.getElementById('valASAS').textContent = (student.asaj !== null && student.asaj !== undefined && student.asaj !== '') ? student.asaj : '-';
+      document.getElementById('subASAS').textContent = (student.asaj !== null && student.asaj !== undefined && student.asaj !== '') 
+        ? (student.asaj >= kkm ? 'Tuntas' : 'Perlu Remedial') 
+        : 'Belum Ada Nilai';
+
+      // Nilai Akhir
+      const finalScore = calculateStudentFinalScore(student);
+      document.getElementById('valNilaiAkhir').textContent = finalScore;
+
+      // Status Kelulusan
+      const statusBox = document.getElementById('statusKelulusanBox');
+      const statusTitle = document.getElementById('statusTitle');
+      const statusDesc = document.getElementById('statusDesc');
+
+      statusBox.className = 'status-box';
+      if (finalScore >= kkm) {
+        statusBox.classList.add('status-passed');
+        statusTitle.textContent = 'LULUS (MEMENUHI KKM)';
+        statusDesc.textContent = 'Selamat! Nilai akhir Anda (' + finalScore + ') telah mencapai standar KKM (' + kkm + ') pada mata pelajaran ' + subObj.name + '.';
+      } else {
+        statusBox.classList.add('status-failed');
+        statusTitle.textContent = 'BELUM MEMENUHI KKM (REMEDIAL)';
+        statusDesc.textContent = 'Nilai akhir Anda (' + finalScore + ') belum mencapai KKM (' + kkm + ') pada mata pelajaran ' + subObj.name + '. Harap hubungi ' + subObj.teacher + '.';
+      }
+
+      // Render daftar tugas 1-5
+      const taskContainer = document.getElementById('taskListContainer');
+      taskContainer.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const val = student.tasks[i];
+        const card = document.createElement('div');
+        card.className = 'task-card';
+
+        let badgeClass = 'badge-task-empty';
+        let badgeText = 'Kosong';
+        if (val !== null && val !== undefined && val !== '') {
+          badgeClass = val >= kkm ? 'badge-task-passed' : 'badge-task-warning';
+          badgeText = val >= kkm ? 'Tuntas' : 'Di Bawah KKM';
+        }
+
+        card.innerHTML = 
+          '<div>' +
+            '<span class="task-title">Tugas Mandiri ' + (i + 1) + '</span>' +
+            '<span class="badge-task-status ' + badgeClass + '">' + badgeText + '</span>' +
+          '</div>' +
+          '<div class="task-score ' + (val === null || val === undefined || val === '' ? 'text-muted' : '') + '">' +
+            (val !== null && val !== undefined && val !== '' ? val : '-') +
+          '</div>';
+
+        taskContainer.appendChild(card);
+      }
+    }
+
+    function bukaModalTambahMapel() {
+      document.getElementById('inputNamaMapelBaru').value = '';
+      document.getElementById('inputGuruMapelBaru').value = '';
+      document.getElementById('inputKkmMapelBaru').value = '75';
+      const m = document.getElementById('modalTambahMapel');
+      if (m) m.style.display = 'flex';
+    }
+
+    function tutupModalTambahMapel() {
+      const m = document.getElementById('modalTambahMapel');
+      if (m) m.style.display = 'none';
+    }
+
+    function handleSimpanMapelBaru(e) {
+      e.preventDefault();
+      const nama = document.getElementById('inputNamaMapelBaru').value.trim();
+      const guru = document.getElementById('inputGuruMapelBaru').value.trim();
+      const kkm = Number(document.getElementById('inputKkmMapelBaru').value) || 75;
+
+      if (!nama || !guru) return;
+
+      if (!appConfig.subjects) appConfig.subjects = [...DEFAULT_SUBJECTS];
+      if (appConfig.subjects.some(s => s.name.toLowerCase() === nama.toLowerCase())) {
+        alert('Mata pelajaran ' + nama + ' sudah ada!');
+        return;
+      }
+
+      const newSub = {
+        id: 'sub_' + Date.now(),
+        name: nama,
+        teacher: guru,
+        kkm: kkm,
+        icon: '📚'
+      };
+
+      appConfig.subjects.push(newSub);
+      saveConfig(appConfig);
+
+      // Sinkronkan ke Supabase jika terhubung
+      const client = getSupabaseClient();
+      if (client) {
+        client.from('subjects').upsert({ name: nama, teacher_name: guru, kkm: kkm }).then(() => {});
+      }
+
+      tutupModalTambahMapel();
+      renderAdminSubjectTabs();
+      showToast('Mata Pelajaran ' + nama + ' (' + guru + ') berhasil ditambahkan!');
+    }
+  
     // 2. NAVIGASI TAB KELAS (MULTI-KELAS)
     function renderClassTabs() {
       const nav = document.getElementById('classesNavBar');
@@ -3512,6 +5837,15 @@
       document.getElementById('recapTableTitle').textContent = 'Rekapitulasi Nilai Siswa (' + label + ')';
     }
 
+    
+    // ========================================================
+    // KEAMANAN TINGKAT TINGGI (ANTI BRUTE-FORCE & SECURE SYNC)
+    // ========================================================
+    let failedAttempts = 0;
+    let lockoutTimer = null;
+    let lockoutRemaining = 0;
+    let currentTeacherSessionPassword = sessionStorage.getItem('nilaiku_teacher_session_pass') || '';
+  
     // 3. LOGIKA SWITCH ROLE LOGIN (MURID | GURU)
     function switchLoginRole(role) {
       currentRole = role;
@@ -3577,29 +5911,45 @@
     // 5. LOGIN GURU (MASUK PANEL ADMIN)
     function handleLoginGuru(e) {
       e.preventDefault();
-      sembunyikanErrorLogin();
 
-      const pwd = document.getElementById('inputPasswordGuru').value;
-      const btn = document.getElementById('btnSubmitGuru');
-      const txt = document.getElementById('btnTextGuru');
-      const sp = document.getElementById('spinnerGuru');
+      if (lockoutRemaining > 0) {
+        tampilkanErrorLogin('Terlalu banyak percobaan salah! Harap tunggu ' + lockoutRemaining + ' detik.');
+        return;
+      }
 
-      btn.disabled = true;
-      txt.style.display = 'none';
-      sp.style.display = 'inline-block';
+      const inputPass = document.getElementById('inputPasswordGuru').value.trim();
+      const actualPass = appConfig.passwordGuru || 'guru123';
 
-      setTimeout(() => {
-        btn.disabled = false;
-        txt.style.display = 'inline';
-        sp.style.display = 'none';
-
-        if (pwd === appConfig.passwordGuru) {
-          bukaDashboardGuru();
-          showToast('Selamat datang, ' + appConfig.teacherName + '!');
+      if (inputPass === actualPass) {
+        failedAttempts = 0;
+        currentTeacherSessionPassword = inputPass;
+        sessionStorage.setItem('nilaiku_teacher_session_pass', inputPass);
+        document.getElementById('inputPasswordGuru').value = '';
+        bukaDashboardGuru();
+      } else {
+        failedAttempts++;
+        if (failedAttempts >= 5) {
+          lockoutRemaining = 60;
+          document.getElementById('btnSubmitGuru').disabled = true;
+          tampilkanErrorLogin('⛔ 5x Percobaan Salah! Akun dikunci sementara selama 60 detik demi keamanan.');
+          
+          if (lockoutTimer) clearInterval(lockoutTimer);
+          lockoutTimer = setInterval(() => {
+            lockoutRemaining--;
+            if (lockoutRemaining <= 0) {
+              clearInterval(lockoutTimer);
+              lockoutTimer = null;
+              failedAttempts = 0;
+              document.getElementById('btnSubmitGuru').disabled = false;
+              sembunyikanErrorLogin();
+            } else {
+              tampilkanErrorLogin('⛔ Akun dikunci! Coba lagi dalam ' + lockoutRemaining + ' detik.');
+            }
+          }, 1000);
         } else {
-          tampilkanErrorLogin('Password guru salah! Silakan coba lagi.');
+          tampilkanErrorLogin('Password guru salah! Sisa percobaan: ' + (5 - failedAttempts));
         }
-      }, 350);
+      }
     }
 
     function tampilkanErrorLogin(msg) {
@@ -4207,7 +6557,7 @@
       if (!container) return;
       container.innerHTML = '';
 
-      let list = studentsList;
+      let list = studentsList.filter(s => (s.subject || 'Informatika') === selectedSubject);
       if (helperSelectedClass !== 'all') {
         list = list.filter(s => s.class === helperSelectedClass);
       }
@@ -4240,7 +6590,7 @@
     function eksporDataCSV() {
       let csv = 'NISN,Nama,Kelas,Kehadiran,Tugas_1,Tugas_2,Tugas_3,Tugas_4,Tugas_5,ASTS,ASAS,NilaiAkhir\r\n';
       
-      let list = studentsList;
+      let list = studentsList.filter(s => (s.subject || 'Informatika') === selectedSubject);
       if (selectedClassTab !== 'all') {
         list = list.filter(s => s.class === selectedClassTab);
       }
